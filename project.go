@@ -48,12 +48,43 @@ type Project struct {
 	UpdatedAt     time.Time              `json:"updatedAt,omitempty"`
 }
 
-func (c *Client) CreateProject(t ProjectTemplate, p map[string]interface{}) (*Project, error) {
-	log.Printf("[INFO] creating project (type: %s)", t)
-	body, err := json.Marshal(&Project{
-		Type:    t.String(),
-		Payload: p,
+func (c *Client) Projects(opts map[string]interface{}) (*[]Project, error) {
+	log.Printf("[INFO] listing project")
+
+	request, err := c.Request("GET", "/v1/projects", &RequestOptions{
+		Headers: map[string]string{
+			"Content-Type": "application/json",
+		},
 	})
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := dispose(c.HTTPClient.Do(request))
+	if err != nil {
+		return nil, err
+	}
+
+	var projects []Project
+	if err := decodeJSON(response, &projects); err != nil {
+		return nil, err
+	}
+
+	return &projects, nil
+}
+
+func (c *Client) CreateProject(kind string, opts map[string]interface{}) (*Project, error) {
+	log.Printf("[INFO] creating project (type: %s)", kind)
+
+	data := &Project{Kind: kind}
+	for k, v := range opts {
+		err := SetField(data, k, v)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	body, err := json.Marshal(data)
 	if err != nil {
 		return nil, err
 	}
