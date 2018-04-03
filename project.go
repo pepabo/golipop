@@ -3,46 +3,35 @@ package lolp
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"log"
+	"reflect"
+	"time"
 )
 
-type ProjectTemplate int
+func SetField(obj interface{}, name string, value interface{}) error {
+	structValue := reflect.ValueOf(obj).Elem()
+	structFieldValue := structValue.FieldByName(name)
 
-const (
-	WORDPRESS ProjectTemplate = iota
-	PHP
-	RAILS
-	NODE
-)
-
-func (t ProjectTemplate) String() string {
-	switch t {
-	case WORDPRESS:
-		return "wordpress"
-	case PHP:
-		return "php"
-	case RAILS:
-		return "rails"
-	case NODE:
-		return "node"
-	default:
-		return "unknown"
+	if !structFieldValue.IsValid() {
+		return fmt.Errorf("No such field: %s in obj", name)
 	}
-}
 
-func GetProjectTemplate(t string) ProjectTemplate {
-	switch t {
-	case "wordpress":
-		return WORDPRESS
-	case "php":
-		return PHP
-	case "rails":
-		return RAILS
-	case "node":
-		return NODE
-	default:
-		panic(`unknown template: ` + t)
+	if !structFieldValue.CanSet() {
+		return fmt.Errorf("Cannot set %s field value", name)
 	}
+
+	structFieldType := structFieldValue.Type()
+	val := reflect.ValueOf(value)
+	if structFieldType != val.Type() {
+		return errors.New("Provided value type didn't match obj field type")
+	}
+
+	if reflect.TypeOf(val).String() != "" {
+		structFieldValue.Set(val)
+	}
+	return nil
 }
 
 type Project struct {
