@@ -25,7 +25,7 @@ const (
 )
 
 var projectURL = "https://github.com/pepabo/golipop"
-var userAgent = fmt.Sprintf("GOLIPOP/1.0 (+%s; %s)", projectURL, runtime.Version())
+var userAgent = fmt.Sprintf("lolp/%s (+%s; %s)", Version, projectURL, runtime.Version())
 
 func DefaultClient() *Client {
 	endpoint := os.Getenv(EndpointEnvVar)

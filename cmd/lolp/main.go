@@ -11,8 +11,6 @@ import (
 	"github.com/pepabo/golipop"
 )
 
-const version = "0.0.1"
-
 type options struct {
 	OptArgs     []string
 	OptCommand  string
@@ -104,7 +102,7 @@ func NewCLI() int {
 	}
 
 	if opts.OptVersion {
-		fmt.Printf("%s\n", version)
+		fmt.Printf("%s\n", lolp.Version)
 		return 0
 	}
 
