@@ -12,15 +12,16 @@ import (
 )
 
 type options struct {
-	OptArgs     []string
-	OptCommand  string
-	OptID       string `long:"id" short:"i" description:"resource id"`
-	OptUsername string `long:"username" short:"u" description:"username for authentication"`
-	OptPassword string `long:"password" short:"p" description:"password for authentication"`
-	OptEmail    string `long:"email" short:"e" description:"password for authentication"`
-	OptTemplate string `long:"template" short:"t" arg:"(wordpress|php|rails|node)" description:"project template"`
-	OptHelp     bool   `long:"help" short:"h" description:"show this help message and exit"`
-	OptVersion  bool   `long:"version" short:"v" description:"prints the version number"`
+	OptArgs       []string
+	OptCommand    string
+	OptSubCommand string
+	OptID         string `long:"id" short:"i" description:"resource id"`
+	OptUsername   string `long:"username" short:"u" description:"username for authentication"`
+	OptPassword   string `long:"password" short:"p" description:"password for authentication"`
+	OptEmail      string `long:"email" short:"e" description:"password for authentication"`
+	OptTemplate   string `long:"template" short:"t" arg:"(wordpress|php|rails|node)" description:"project template"`
+	OptHelp       bool   `long:"help" short:"h" description:"show this help message and exit"`
+	OptVersion    bool   `long:"version" short:"v" description:"prints the version number"`
 }
 
 func showHelp() {
@@ -113,7 +114,10 @@ func NewCLI() int {
 
 	opts.OptCommand = args[0]
 	if len(args) > 1 {
-		opts.OptArgs = args[1:]
+		opts.OptSubCommand = args[1]
+	}
+	if len(args) > 2 {
+		opts.OptArgs = args[2:]
 	}
 
 	Run(opts)
