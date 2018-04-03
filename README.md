@@ -19,6 +19,30 @@ To install, use `go get`:
 $ go get -d github.com/pepabo/golipop
 ```
 
+Usage
+-----
+
+As CLI:
+
+```sh
+$ eval $(lolp login -u <your@example.com> -p <your_password>)
+$ lolp project create -t rails
+```
+
+As library:
+
+```go
+client := lolp.DefaultClinet()
+token, err := client.Login("your@example.com", "your_password")
+if err != nil {
+  panic(err)
+}
+project, err := client.CreateProject("rails", map[string]interface{})
+if err != nil {
+  panic(err)
+}
+```
+
 Contribution
 ------------
 
