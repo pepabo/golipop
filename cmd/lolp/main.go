@@ -127,27 +127,58 @@ func NewCLI() int {
 func Run(o *options) {
 	c := lolp.DefaultClient()
 
-	if o.OptCommand == "login" {
+	switch o.OptCommand {
+	case "login":
 		token, err := c.Login(o.OptUsername, o.OptPassword)
 		if err != nil {
 			panic(err)
 		}
 		fmt.Fprintf(os.Stdout, "export %s=%s", lolp.TokenEnvVar, token)
 		return
-	}
 
-	if o.OptCommand == "project" {
-		payload := map[string]interface{}{
-			"username": o.OptUsername,
-			"password": o.OptPassword,
-			"email":    o.OptEmail,
-		}
+	case "project":
+		switch o.OptSubCommand {
+		case "create":
+			opts := map[string]interface{}{
+				"Domain":        "",
+				"CustomDomains": []string{},
+				"Database": map[string]interface{}{
+					"password": o.OptPassword,
+				},
+				"Payload": map[string]interface{}{
+					"username": o.OptUsername,
+					"password": o.OptPassword,
+					"email":    o.OptEmail,
+				},
+			}
 
-		p, err := c.CreateProject(lolp.GetProjectTemplate(o.OptTemplate), payload)
-		if err == nil {
-			panic(err)
+			p, err := c.CreateProject(o.OptTemplate, opts)
+			if err != nil {
+				panic(err)
+			}
+			fmt.Fprintf(os.Stdout, "%#v\n", p)
+
+		case "list":
+			opts := map[string]interface{}{}
+			projects, err := c.Projects(opts)
+			if err != nil {
+				panic(err)
+			}
+			for _, v := range *projects {
+				fmt.Fprintf(os.Stdout, "%#v\n", v)
+			}
+
+		case "delete":
+			err := c.DeleteProject(o.OptID)
+			if err != nil {
+				panic(err)
+			}
+			fmt.Fprintf(os.Stdout, "delete successfuly\n")
+
 		}
-		fmt.Fprintf(os.Stdout, "%#v\n", p)
+		return
+
+	default:
 		return
 	}
 }
