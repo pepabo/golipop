@@ -35,12 +35,17 @@ func SetField(obj interface{}, name string, value interface{}) error {
 }
 
 type Project struct {
-	Type          string                 `json:"type"`
-	Domain        string                 `json:"domain"`
-	SubDomain     string                 `json:"sub_domain"`
-	DBPassword    string                 `json:"db_password,omitempty"`
+	ID            string                 `json:"id,omitempty`
+	UserID        string                 `json:"userID,omitempty"`
+	Name          string                 `json:"name,omitempty"`
+	Kind          string                 `json:"kind"`
+	Domain        string                 `json:"domain,omitempty"`
+	SubDomain     string                 `json:"sub_domain,omitempty"`
 	CustomDomains []string               `json:"custom_domains,omitempty"`
 	Payload       map[string]interface{} `json:"payload,omitempty"`
+	Database      map[string]interface{} `json:"database,omitempty"`
+	CreatedAt     time.Time              `json:"createdAt,omitempty"`
+	UpdatedAt     time.Time              `json:"updatedAt,omitempty"`
 }
 
 func (c *Client) CreateProject(t ProjectTemplate, p map[string]interface{}) (*Project, error) {
