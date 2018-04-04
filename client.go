@@ -18,15 +18,34 @@ import (
 )
 
 const (
-	defaultEndpoint   = "https://api.mc.lolipop.jp/"
-	EndpointEnvVar    = "GOLIPOP_ENDPOINT"
+	// defaultEndpoint
+	defaultEndpoint = "https://api.mc.lolipop.jp/"
+
+	// EndpointEnvVar for endpoint
+	EndpointEnvVar = "GOLIPOP_ENDPOINT"
+
+	// TLSNoVerifyEnvVar for TLS verify skip flag
 	TLSNoVerifyEnvVar = "GOLIPOP_TLS_NOVERIFY"
-	TokenEnvVar       = "GOLIPOP_TOKEN"
+
+	// TokenEnvVar for authentication
+	TokenEnvVar = "GOLIPOP_TOKEN"
 )
 
+// projectURL for this
 var projectURL = "https://github.com/pepabo/golipop"
+
+// userAgent for request
 var userAgent = fmt.Sprintf("lolp/%s (+%s; %s)", Version, projectURL, runtime.Version())
 
+// Client struct
+type Client struct {
+	URL           *url.URL
+	HTTPClient    *http.Client
+	DefaultHeader http.Header
+	Token         string
+}
+
+// DefaultClient returns client struct pointer
 func DefaultClient() *Client {
 	endpoint := os.Getenv(EndpointEnvVar)
 	if endpoint == "" {
@@ -46,13 +65,7 @@ func DefaultClient() *Client {
 	return client
 }
 
-type Client struct {
-	URL           *url.URL
-	HTTPClient    *http.Client
-	DefaultHeader http.Header
-	Token         string
-}
-
+// NewClient returns clean client struct pointer
 func NewClient(u string) (*Client, error) {
 	if len(u) == 0 {
 		return nil, fmt.Errorf("client: missing url")
@@ -75,8 +88,10 @@ func NewClient(u string) (*Client, error) {
 	return c, nil
 }
 
+// init initializes for client
 func (c *Client) init() error {
 	c.DefaultHeader.Set("User-Agent", userAgent)
+	c.DefaultHeader.Set("Content-Type", "application/json")
 	c.HTTPClient = cleanhttp.DefaultClient()
 
 	tlsConfig := &tls.Config{}
@@ -90,6 +105,7 @@ func (c *Client) init() error {
 	return nil
 }
 
+// RequestOptions struct
 type RequestOptions struct {
 	Params     map[string]string
 	Headers    map[string]string
@@ -97,6 +113,7 @@ type RequestOptions struct {
 	BodyLength int64
 }
 
+// Request returns http.Request pointer with error
 func (c *Client) Request(verb, spath string, ro *RequestOptions) (*http.Request, error) {
 	log.Printf("[INFO] request: %s %s", verb, spath)
 
@@ -117,6 +134,7 @@ func (c *Client) Request(verb, spath string, ro *RequestOptions) (*http.Request,
 	return c.rawRequest(verb, &u, ro)
 }
 
+// rawRequest returns http.Request pointer with error
 func (c *Client) rawRequest(verb string, u *url.URL, ro *RequestOptions) (*http.Request, error) {
 	if verb == "" {
 		return nil, fmt.Errorf("client: missing verb")
@@ -158,6 +176,7 @@ func (c *Client) rawRequest(verb string, u *url.URL, ro *RequestOptions) (*http.
 	return request, nil
 }
 
+// dispose returns http.Request pointer with error
 func dispose(res *http.Response, err error) (*http.Response, error) {
 	if err != nil {
 		return res, err
@@ -195,6 +214,7 @@ func dispose(res *http.Response, err error) (*http.Response, error) {
 	}
 }
 
+// parseErr parses for error response
 func parseErr(r *http.Response) error {
 	re := &AppError{}
 
@@ -205,24 +225,29 @@ func parseErr(r *http.Response) error {
 	return re
 }
 
+// decodeJSON decodes for response
 func decodeJSON(res *http.Response, out interface{}) error {
 	defer res.Body.Close()
 	dec := json.NewDecoder(res.Body)
 	return dec.Decode(out)
 }
 
+// bytesReadCloser struct
 type bytesReadCloser struct {
 	*bytes.Buffer
 }
 
+// Close returns nil
 func (nrc *bytesReadCloser) Close() error {
 	return nil
 }
 
+// AppError struct
 type AppError struct {
 	Errors []string `json:"errors"`
 }
 
+// Error returns error by string
 func (re *AppError) Error() string {
 	return strings.Join(re.Errors, ", ")
 }

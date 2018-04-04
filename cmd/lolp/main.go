@@ -2,47 +2,122 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
+	"io"
+	"log"
 	"os"
 	"reflect"
 	"strings"
 
+	"github.com/hashicorp/logutils"
 	flags "github.com/jessevdk/go-flags"
 	"github.com/pepabo/golipop"
 )
 
-type options struct {
-	OptArgs       []string
-	OptCommand    string
-	OptSubCommand string
-	OptID         string `long:"id" short:"i" description:"resource id"`
-	OptUsername   string `long:"username" short:"u" description:"username for authentication"`
-	OptPassword   string `long:"password" short:"p" description:"password for authentication"`
-	OptEmail      string `long:"email" short:"e" description:"password for authentication"`
-	OptTemplate   string `long:"template" short:"t" arg:"(wordpress|php|rails|node)" description:"project template"`
-	OptHelp       bool   `long:"help" short:"h" description:"show this help message and exit"`
-	OptVersion    bool   `long:"version" short:"v" description:"prints the version number"`
+func main() {
+	cli := &CLI{outStream: os.Stdout, errStream: os.Stderr}
+	os.Exit(cli.run())
 }
 
-func showHelp() {
-	os.Stderr.WriteString(`
+// CLI struct
+type CLI struct {
+	outStream, errStream io.Writer
+	client               *lolp.Client
+	Args                 []string
+	ParsedArgs           map[string]interface{}
+	Command              string
+	SubCommand           string
+	OptLogLevel          string `long:"loglevel" short:"l" arg:"debug|info|warn|error" description:"specify log-level"`
+	OptHelp              bool   `long:"help" short:"h" description:"show this help message and exit"`
+	OptVersion           bool   `long:"version" short:"v" description:"prints the version number"`
+}
+
+const (
+	// ExitOK for exit code
+	ExitOK int = 0
+
+	// ExitErr for exit code
+	ExitErr int = 1
+
+	ArgSplitKey string = "="
+)
+
+// CLI executes for cli
+func (c *CLI) run() int {
+	p := flags.NewParser(c, flags.PrintErrors|flags.PassDoubleDash)
+	args, err := p.Parse()
+	if err != nil || c.OptHelp {
+		c.showHelp()
+		return ExitErr
+	}
+
+	if c.OptVersion {
+		fmt.Fprintf(c.errStream, "%s\n", lolp.Version)
+		return ExitOK
+	}
+
+	if len(args) == 0 {
+		fmt.Fprintf(c.errStream, "command not specified\n")
+		return ExitErr
+	}
+
+	c.Command = args[0]
+	if len(args) > 1 {
+		c.SubCommand = args[1]
+	}
+	if len(args) > 2 {
+		c.Args = args[2:]
+	}
+
+	if c.OptLogLevel != "" {
+		c.OptLogLevel = strings.ToUpper(c.OptLogLevel)
+	} else {
+		c.OptLogLevel = "ERROR"
+	}
+
+	c.ParsedArgs = make(map[string]interface{})
+	fmt.Printf("%#v\n", c.Args)
+	for _, arg := range c.Args {
+		parsed := strings.Split(arg, ArgSplitKey)
+		fmt.Printf("%#v\n", parsed)
+		if parsed[0] != "" && parsed[1] != "" {
+			c.ParsedArgs[strings.Title(parsed[0])] = parsed[1]
+		}
+	}
+	fmt.Printf("%#v\n", c.ParsedArgs)
+
+	filter := &logutils.LevelFilter{
+		Levels:   []logutils.LogLevel{"DEBUG", "INFO", "WARN", "ERROR"},
+		MinLevel: logutils.LogLevel(c.OptLogLevel),
+		Writer:   c.errStream,
+	}
+	log.SetOutput(filter)
+
+	if err := c.callAPI(); err != nil {
+		fmt.Fprintf(c.errStream, "%s\n", err)
+		return ExitErr
+	}
+
+	return ExitOK
+}
+
+// help shows help
+func (c *CLI) showHelp() {
+	fmt.Fprintf(c.outStream, `
 Usage: lolp [options] [CMD]
 
 Commands:
-  login -u your@example.com -p
-  project create -t <wordpress|php|rails|node>
+  login username=your@example.com password=******
+  project create kind=<wordpress|php|rails|node> username=wpuser password=wp*** email=wp@example.com
   project list
-  project delete -i <id>
+  project delete id=<ID>
 
 Options:
 `)
-	t := reflect.TypeOf(options{})
+
+	t := reflect.TypeOf(CLI{})
 	names := []string{
-		"OptID",
-		"OptUsername",
-		"OptPassword",
-		"OptEmail",
-		"OptTemplate",
 		"OptHelp",
 		"OptVersion",
 	}
@@ -85,100 +160,91 @@ Options:
 			}
 			desc = buf.String()
 		}
-		fmt.Fprintf(os.Stderr, "  %-21s %s\n", o, desc)
+		fmt.Fprintf(c.outStream, "  %-21s %s\n", o, desc)
 	}
 }
 
-func main() {
-	os.Exit(NewCLI())
-}
+// callAPI calls API for cli
+func (c *CLI) callAPI() error {
+	c.client = lolp.DefaultClient()
+	var err error
 
-func NewCLI() int {
-	opts := &options{}
-	p := flags.NewParser(opts, flags.PrintErrors|flags.PassDoubleDash)
-	args, err := p.Parse()
-	if err != nil || opts.OptHelp {
-		showHelp()
-		return 1
-	}
-
-	if opts.OptVersion {
-		fmt.Printf("%s\n", lolp.Version)
-		return 0
-	}
-
-	if len(args) == 0 {
-		fmt.Fprintf(os.Stderr, "command not specified\n")
-		return 1
-	}
-
-	opts.OptCommand = args[0]
-	if len(args) > 1 {
-		opts.OptSubCommand = args[1]
-	}
-	if len(args) > 2 {
-		opts.OptArgs = args[2:]
-	}
-
-	Run(opts)
-	return 0
-}
-
-func Run(o *options) {
-	c := lolp.DefaultClient()
-
-	switch o.OptCommand {
+	switch c.Command {
 	case "login":
-		token, err := c.Login(o.OptUsername, o.OptPassword)
-		if err != nil {
-			panic(err)
-		}
-		fmt.Fprintf(os.Stdout, "export %s=%s", lolp.TokenEnvVar, token)
-		return
-
+		err = c.login()
 	case "project":
-		switch o.OptSubCommand {
+		switch c.SubCommand {
 		case "create":
-			opts := map[string]interface{}{
-				"Domain":        "",
-				"CustomDomains": []string{},
-				"Database": map[string]interface{}{
-					"password": o.OptPassword,
-				},
-				"Payload": map[string]interface{}{
-					"username": o.OptUsername,
-					"password": o.OptPassword,
-					"email":    o.OptEmail,
-				},
-			}
-
-			p, err := c.CreateProject(o.OptTemplate, opts)
-			if err != nil {
-				panic(err)
-			}
-			fmt.Fprintf(os.Stdout, "%#v\n", p)
-
+			err = c.createProject()
 		case "list":
-			opts := map[string]interface{}{}
-			projects, err := c.Projects(opts)
-			if err != nil {
-				panic(err)
-			}
-			for _, v := range *projects {
-				fmt.Fprintf(os.Stdout, "%#v\n", v)
-			}
-
+			err = c.projects()
 		case "delete":
-			err := c.DeleteProject(o.OptID)
-			if err != nil {
-				panic(err)
-			}
-			fmt.Fprintf(os.Stdout, "delete successfuly\n")
-
+			err = c.deleteProject()
+		default:
+			err = errors.New("unknown sub command")
 		}
-		return
-
 	default:
-		return
+		err = errors.New("unknown command")
 	}
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+type Login struct {
+	username string
+	password string
+}
+
+// login logins to lolipop
+func (c *CLI) login() error {
+	l := new(Login)
+	for f, v := range c.ParsedArgs {
+		lolp.SetField(l, f, v)
+	}
+	token, err := c.client.Login(l.username, l.password)
+	if err != nil {
+		return err
+	}
+	fmt.Fprintf(c.outStream, "export %s=%s", lolp.TokenEnvVar, token)
+	return nil
+}
+
+// createProject creates project
+func (c *CLI) createProject() error {
+	p, err := c.client.CreateProject(c.ParsedArgs)
+	if err != nil {
+		return err
+	}
+	fmt.Fprintf(c.outStream, "%#v\n", p)
+	return nil
+}
+
+// projects gets project list
+func (c *CLI) projects() error {
+	projects, err := c.client.Projects(map[string]interface{}{})
+	if err != nil {
+		return err
+	}
+	for _, v := range *projects {
+		fmt.Fprintf(c.outStream, "%#v\n", v)
+	}
+	return nil
+}
+
+// deleteProject deletes project
+func (c *CLI) deleteProject() error {
+	p := new(lolp.Project)
+	for f, v := range c.ParsedArgs {
+		lolp.SetField(p, f, v)
+	}
+	err := c.client.DeleteProject(p.ID)
+	if err != nil {
+		return err
+	}
+	fmt.Fprintf(c.outStream, "delete successfuly\n")
+	return nil
 }

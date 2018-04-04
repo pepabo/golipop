@@ -3,37 +3,11 @@ package lolp
 import (
 	"bytes"
 	"encoding/json"
-	"errors"
-	"fmt"
 	"log"
-	"reflect"
 	"time"
 )
 
-func SetField(obj interface{}, name string, value interface{}) error {
-	structValue := reflect.ValueOf(obj).Elem()
-	structFieldValue := structValue.FieldByName(name)
-
-	if !structFieldValue.IsValid() {
-		return fmt.Errorf("No such field: %s in obj", name)
-	}
-
-	if !structFieldValue.CanSet() {
-		return fmt.Errorf("Cannot set %s field value", name)
-	}
-
-	structFieldType := structFieldValue.Type()
-	val := reflect.ValueOf(value)
-	if structFieldType != val.Type() {
-		return errors.New("Provided value type didn't match obj field type")
-	}
-
-	if reflect.TypeOf(val).String() != "" {
-		structFieldValue.Set(val)
-	}
-	return nil
-}
-
+// Project struct
 type Project struct {
 	ID            string                 `json:"id,omitempty`
 	UserID        string                 `json:"userID,omitempty"`
@@ -48,14 +22,11 @@ type Project struct {
 	UpdatedAt     time.Time              `json:"updatedAt,omitempty"`
 }
 
+// Projects returns project list
 func (c *Client) Projects(opts map[string]interface{}) (*[]Project, error) {
 	log.Printf("[INFO] listing project")
 
-	request, err := c.Request("GET", "/v1/projects", &RequestOptions{
-		Headers: map[string]string{
-			"Content-Type": "application/json",
-		},
-	})
+	request, err := c.Request("GET", "/v1/projects", &RequestOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -73,11 +44,12 @@ func (c *Client) Projects(opts map[string]interface{}) (*[]Project, error) {
 	return &projects, nil
 }
 
-func (c *Client) CreateProject(kind string, opts map[string]interface{}) (*Project, error) {
-	log.Printf("[INFO] creating project (type: %s)", kind)
+// CreateProject creates project with kind
+func (c *Client) CreateProject(values map[string]interface{}) (*Project, error) {
+	log.Printf("[INFO] creating project")
 
-	data := &Project{Kind: kind}
-	for k, v := range opts {
+	data := &Project{}
+	for k, v := range values {
 		err := SetField(data, k, v)
 		if err != nil {
 			return nil, err
@@ -91,9 +63,6 @@ func (c *Client) CreateProject(kind string, opts map[string]interface{}) (*Proje
 
 	request, err := c.Request("POST", "/v1/projects", &RequestOptions{
 		Body: bytes.NewReader(body),
-		Headers: map[string]string{
-			"Content-Type": "application/json",
-		},
 	})
 	if err != nil {
 		return nil, err
@@ -112,12 +81,9 @@ func (c *Client) CreateProject(kind string, opts map[string]interface{}) (*Proje
 	return &project, nil
 }
 
-func (c *Client) DeleteProject(ID string) error {
-	request, err := c.Request("DELETE", `/v1/projects/`+ID, &RequestOptions{
-		Headers: map[string]string{
-			"Content-Type": "application/json",
-		},
-	})
+// DeleteProject deletes project by project sub-domain name
+func (c *Client) DeleteProject(name string) error {
+	request, err := c.Request("DELETE", `/v1/projects/`+name, &RequestOptions{})
 	if err != nil {
 		return err
 	}

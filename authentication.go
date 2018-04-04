@@ -6,11 +6,7 @@ import (
 	"strings"
 )
 
-type Login struct {
-	Username string
-	Password string
-}
-
+// Login for authorization
 func (c *Client) Login(username, password string) (string, error) {
 	log.Printf("[INFO] logging in user %s", username)
 
@@ -25,9 +21,6 @@ func (c *Client) Login(username, password string) (string, error) {
 	jsonStr := fmt.Sprintf(`{"username":"%s","password":"%s"}`, username, password)
 	request, err := c.Request("POST", "/v1/authorizations", &RequestOptions{
 		Body: strings.NewReader(jsonStr),
-		Headers: map[string]string{
-			"Content-Type": "application/json",
-		},
 	})
 
 	if err != nil {
@@ -44,7 +37,17 @@ func (c *Client) Login(username, password string) (string, error) {
 		return "", nil
 	}
 
+	log.Printf("[DEBUG] setting token (%s)", mask(token))
 	c.Token = token
 
 	return c.Token, nil
+}
+
+// mask for string
+func mask(s string) string {
+	if len(s) <= 3 {
+		return "***[masked]"
+	}
+
+	return s[0:3] + "***[masked]"
 }
