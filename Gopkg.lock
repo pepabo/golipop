@@ -8,6 +8,12 @@
   revision = "d5fe4b57a186c716b0e00b8c301cbd9b4182694d"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/hashicorp/logutils"
+  packages = ["."]
+  revision = "0dc08b1671f34c4250ce212759ebd880f743d883"
+
+[[projects]]
   name = "github.com/jessevdk/go-flags"
   packages = ["."]
   revision = "c6ca198ec95c841fdb89fc0de7496fed11ab854e"
@@ -16,6 +22,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a030ccbabdff7ac41def3de5c482be341fd43ebdfe30634a457e5a150b0b5ac9"
+  inputs-digest = "52b82b22ecce0b41b569f0bee90a5aa7ec710a409010e7376985dca08ac305eb"
   solver-name = "gps-cdcl"
   solver-version = 1
