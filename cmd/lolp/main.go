@@ -179,7 +179,7 @@ func (c *CLI) callAPI() error {
 		case "delete":
 			err = c.deleteProject()
 		default:
-			err = errors.New("unknown sub command")
+			err = c.project()
 		}
 	default:
 		err = errors.New("unknown command")
@@ -231,6 +231,16 @@ func (c *CLI) projects() error {
 	for _, v := range *projects {
 		fmt.Fprintf(c.outStream, "%-38s  %-36s %s\n", v.ID, v.Name, v.Kind)
 	}
+	return nil
+}
+
+// project get a project
+func (c *CLI) project() error {
+	p, err := c.client.Project(c.SubCommand)
+	if err != nil {
+		return err
+	}
+	c.showStruct(p)
 	return nil
 }
 
