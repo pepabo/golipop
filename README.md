@@ -25,8 +25,17 @@ Usage
 As CLI:
 
 ```sh
-$ eval $(lolp login -u <your@example.com> -p <your_password>)
-$ lolp project create -t rails
+$ eval $(lolp login --username <your@example.com> --password <your_password>)
+$ lolp project create --kind rails --database password:********
+long-foo-9999.lolipop.io
+$ lolp project long-foo-9999
+ID                   11820
+UUID                 "cdd32ae5-c118-4fc9-b9d6-ea5ad18f3737"
+AccountHumaneID      "smart-naha-3123"
+SVM                  "cl1_nfs01"
+Volume               "volume5"
+DatbaseHost          "mysql-1.mc.lolipop.lan"
+...
 ```
 
 As library:
@@ -37,7 +46,11 @@ token, err := client.Login("your@example.com", "your_password")
 if err != nil {
   panic(err)
 }
-project, err := client.CreateProject("rails", map[string]interface{})
+p := &ProjectNew{
+  Kind: "rails",
+  Database: map[string]interface{} {"password": "********"},
+}
+project, err := client.CreateProject(p)
 if err != nil {
   panic(err)
 }
