@@ -254,3 +254,13 @@ func (c *CLI) deleteProject() error {
 	fmt.Fprintf(c.outStream, "delete successfuly\n")
 	return nil
 }
+
+// showStruct shows a struct
+func (c *CLI) showStruct(s interface{}) {
+	ss := reflect.ValueOf(s).Elem()
+	typeOfT := ss.Type()
+	for i := 0; i < ss.NumField(); i++ {
+		f := ss.Field(i)
+		fmt.Fprintf(c.outStream, "%-20s %#v\n", typeOfT.Field(i).Name, f.Interface())
+	}
+}
