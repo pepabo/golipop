@@ -42,8 +42,6 @@ const (
 
 	// ExitErr for exit code
 	ExitErr int = 1
-
-	ArgSplitKey string = "="
 )
 
 // CLI executes for cli
