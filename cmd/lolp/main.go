@@ -31,7 +31,8 @@ type CLI struct {
 	OptHelp              bool              `long:"help" short:"h" description:"show this help message and exit"`
 	OptVersion           bool              `long:"version" short:"v" description:"prints the version number"`
 	Kind                 string            `long:"kind" arg:"(wordpress|php|rails|node)" description:"kind for project"`
-	Payload              map[string]string `long:"payload" description:"payload for resource"`
+	Payload              map[string]string `long:"payload" description:"payload for project"`
+	Database             map[string]string `long:"database" arg:"password" description:"database for project"`
 	Username             string            `long:"username" description:""`
 	Password             string            `long:"password" description:""`
 }
@@ -210,6 +211,9 @@ func (c *CLI) createProject() error {
 			payload[k] = v
 		}
 		n.Payload = payload
+	}
+	if len(c.Database) > 0 {
+		n.Database = map[string]interface{}{"password": c.Database["password"]}
 	}
 	p, err := c.client.CreateProject(n)
 	if err != nil {
