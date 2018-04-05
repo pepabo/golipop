@@ -21,11 +21,6 @@ type Project struct {
 	UpdatedAt     time.Time              `json:"updatedAt,omitempty"`
 }
 
-type ManagedConfig struct {
-	DBName string `json:"db_name",omitempty`
-	DBUser string `json:"db_user",omitempty`
-}
-
 // ProjectGet struct
 type ProjectGet struct {
 	ID                 int                    `json:"id,omitempty"`
