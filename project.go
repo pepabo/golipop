@@ -16,10 +16,21 @@ type Project struct {
 	Domain        string                 `json:"domain,omitempty"`
 	SubDomain     string                 `json:"sub_domain,omitempty"`
 	CustomDomains []string               `json:"custom_domains,omitempty"`
-	Payload       map[string]interface{} `json:"payload,omitempty"`
 	Database      map[string]interface{} `json:"database,omitempty"`
 	CreatedAt     time.Time              `json:"createdAt,omitempty"`
 	UpdatedAt     time.Time              `json:"updatedAt,omitempty"`
+}
+
+// ProjectCreate struct on create
+type ProjectCreate struct {
+	UserID        string                 `json:"userID,omitempty"`
+	Name          string                 `json:"name,omitempty"`
+	Kind          string                 `json:"kind"`
+	Domain        string                 `json:"domain,omitempty"`
+	SubDomain     string                 `json:"sub_domain,omitempty"`
+	CustomDomains []string               `json:"custom_domains,omitempty"`
+	Payload       map[string]interface{} `json:"payload,omitempty"`
+	Database      map[string]interface{} `json:"database,omitempty"`
 }
 
 // Projects returns project list
@@ -48,7 +59,7 @@ func (c *Client) Projects(opts map[string]interface{}) (*[]Project, error) {
 func (c *Client) CreateProject(values map[string]interface{}) (*Project, error) {
 	log.Printf("[INFO] creating project")
 
-	data := &Project{}
+	data := &ProjectCreate{}
 	for k, v := range values {
 		err := SetField(data, k, v)
 		if err != nil {
@@ -60,6 +71,7 @@ func (c *Client) CreateProject(values map[string]interface{}) (*Project, error) 
 	if err != nil {
 		return nil, err
 	}
+	log.Printf("[DEBUG] request body: %s", body)
 
 	request, err := c.Request("POST", "/v1/projects", &RequestOptions{
 		Body: bytes.NewReader(body),

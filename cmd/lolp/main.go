@@ -25,12 +25,15 @@ type CLI struct {
 	outStream, errStream io.Writer
 	client               *lolp.Client
 	Args                 []string
-	ParsedArgs           map[string]interface{}
 	Command              string
 	SubCommand           string
-	OptLogLevel          string `long:"loglevel" short:"l" arg:"debug|info|warn|error" description:"specify log-level"`
-	OptHelp              bool   `long:"help" short:"h" description:"show this help message and exit"`
-	OptVersion           bool   `long:"version" short:"v" description:"prints the version number"`
+	OptLogLevel          string            `long:"loglevel" short:"l" arg:"(debug|info|warn|error)" description:"specify log-level"`
+	OptHelp              bool              `long:"help" short:"h" description:"show this help message and exit"`
+	OptVersion           bool              `long:"version" short:"v" description:"prints the version number"`
+	Kind                 string            `long:"kind" arg:"(wordpress|php|rails|node)" description:"kind for project"`
+	Payload              map[string]string `long:"payload" description:"payload for resource"`
+	Username             string            `long:"username" description:""`
+	Password             string            `long:"password" description:""`
 }
 
 const (
@@ -76,17 +79,6 @@ func (c *CLI) run() int {
 		c.OptLogLevel = "ERROR"
 	}
 
-	c.ParsedArgs = make(map[string]interface{})
-	fmt.Printf("%#v\n", c.Args)
-	for _, arg := range c.Args {
-		parsed := strings.Split(arg, ArgSplitKey)
-		fmt.Printf("%#v\n", parsed)
-		if parsed[0] != "" && parsed[1] != "" {
-			c.ParsedArgs[strings.Title(parsed[0])] = parsed[1]
-		}
-	}
-	fmt.Printf("%#v\n", c.ParsedArgs)
-
 	filter := &logutils.LevelFilter{
 		Levels:   []logutils.LogLevel{"DEBUG", "INFO", "WARN", "ERROR"},
 		MinLevel: logutils.LogLevel(c.OptLogLevel),
@@ -105,19 +97,21 @@ func (c *CLI) run() int {
 // help shows help
 func (c *CLI) showHelp() {
 	fmt.Fprintf(c.outStream, `
-Usage: lolp [options] [CMD]
+Usage: lolp [<option>] <command> [<args|attributes>]
 
 Commands:
-  login username=your@example.com password=******
-  project create kind=<wordpress|php|rails|node> username=wpuser password=wp*** email=wp@example.com
+  login --username <id> --password <pw>
+  project create --kind <php|rails|node> --database pw:<pw>
+  project create --kind wordpress --payload username:<wp-user> --payload password:<wp-pw> --payload email:<wp-email>
   project list
-  project delete id=<ID>
+  project delete <name>
 
 Options:
 `)
 
 	t := reflect.TypeOf(CLI{})
 	names := []string{
+		"OptLogLevel",
 		"OptHelp",
 		"OptVersion",
 	}
@@ -132,11 +126,15 @@ Options:
 		if tag == "" {
 			continue
 		}
-		var o string
+
+		var o, a string
+		if a = tag.Get("arg"); a != "" {
+			a = fmt.Sprintf("=%s", a)
+		}
 		if s := tag.Get("short"); s != "" {
-			o = fmt.Sprintf("-%s, --%s", tag.Get("short"), tag.Get("long"))
+			o = fmt.Sprintf("-%s, --%s%s", tag.Get("short"), tag.Get("long"), a)
 		} else {
-			o = fmt.Sprintf("--%s", tag.Get("long"))
+			o = fmt.Sprintf("--%s%s", tag.Get("long"), a)
 		}
 
 		desc := tag.Get("description")
@@ -160,7 +158,7 @@ Options:
 			}
 			desc = buf.String()
 		}
-		fmt.Fprintf(c.outStream, "  %-21s %s\n", o, desc)
+		fmt.Fprintf(c.outStream, "  %-40s %s\n", o, desc)
 	}
 }
 
@@ -194,18 +192,9 @@ func (c *CLI) callAPI() error {
 	return nil
 }
 
-type Login struct {
-	username string
-	password string
-}
-
 // login logins to lolipop
 func (c *CLI) login() error {
-	l := new(Login)
-	for f, v := range c.ParsedArgs {
-		lolp.SetField(l, f, v)
-	}
-	token, err := c.client.Login(l.username, l.password)
+	token, err := c.client.Login(c.Username, c.Password)
 	if err != nil {
 		return err
 	}
@@ -215,7 +204,16 @@ func (c *CLI) login() error {
 
 // createProject creates project
 func (c *CLI) createProject() error {
-	p, err := c.client.CreateProject(c.ParsedArgs)
+	attrs := make(map[string]interface{})
+	attrs["Kind"] = c.Kind
+	if len(c.Payload) > 0 {
+		payload := make(map[string]interface{})
+		for k, v := range c.Payload {
+			payload[k] = v
+		}
+		attrs["Payload"] = payload
+	}
+	p, err := c.client.CreateProject(attrs)
 	if err != nil {
 		return err
 	}
@@ -225,23 +223,20 @@ func (c *CLI) createProject() error {
 
 // projects gets project list
 func (c *CLI) projects() error {
-	projects, err := c.client.Projects(map[string]interface{}{})
+	projects, err := c.client.Projects(make(map[string]interface{}))
 	if err != nil {
 		return err
 	}
+	fmt.Fprintf(c.outStream, "%-38s  %-36s %s\n", "ID", "Name", "Kind")
 	for _, v := range *projects {
-		fmt.Fprintf(c.outStream, "%#v\n", v)
+		fmt.Fprintf(c.outStream, "%-38s  %-36s %s\n", v.ID, v.Name, v.Kind)
 	}
 	return nil
 }
 
 // deleteProject deletes project
 func (c *CLI) deleteProject() error {
-	p := new(lolp.Project)
-	for f, v := range c.ParsedArgs {
-		lolp.SetField(p, f, v)
-	}
-	err := c.client.DeleteProject(p.ID)
+	err := c.client.DeleteProject(c.Args[0])
 	if err != nil {
 		return err
 	}
