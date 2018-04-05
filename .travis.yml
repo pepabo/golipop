@@ -1,0 +1,8 @@
+language: go
+go:
+  - 1.9.x
+script:
+  - make ci
+notifications:
+  slack: pepabo:1cO6OMIn3eFpIeyMXSuxrYjC
+  email: false
