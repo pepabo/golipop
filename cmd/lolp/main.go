@@ -204,16 +204,16 @@ func (c *CLI) login() error {
 
 // createProject creates project
 func (c *CLI) createProject() error {
-	attrs := make(map[string]interface{})
-	attrs["Kind"] = c.Kind
+	n := new(lolp.ProjectNew)
+	n.Kind = c.Kind
 	if len(c.Payload) > 0 {
 		payload := make(map[string]interface{})
 		for k, v := range c.Payload {
 			payload[k] = v
 		}
-		attrs["Payload"] = payload
+		n.Payload = payload
 	}
-	p, err := c.client.CreateProject(attrs)
+	p, err := c.client.CreateProject(n)
 	if err != nil {
 		return err
 	}
@@ -223,7 +223,7 @@ func (c *CLI) createProject() error {
 
 // projects gets project list
 func (c *CLI) projects() error {
-	projects, err := c.client.Projects(make(map[string]interface{}))
+	projects, err := c.client.Projects()
 	if err != nil {
 		return err
 	}

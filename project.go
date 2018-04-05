@@ -9,10 +9,10 @@ import (
 
 // Project struct
 type Project struct {
-	ID            string                 `json:"id,omitempty`
+	ID            int                    `json:"id,omitempty"`
 	UserID        string                 `json:"userID,omitempty"`
 	Name          string                 `json:"name,omitempty"`
-	Kind          string                 `json:"kind"`
+	Kind          string                 `json:"kind,omitempty"`
 	Domain        string                 `json:"domain,omitempty"`
 	SubDomain     string                 `json:"sub_domain,omitempty"`
 	CustomDomains []string               `json:"custom_domains,omitempty"`
@@ -21,11 +21,34 @@ type Project struct {
 	UpdatedAt     time.Time              `json:"updatedAt,omitempty"`
 }
 
-// ProjectCreate struct on create
-type ProjectCreate struct {
+type ManagedConfig struct {
+	DBName string `json:"db_name",omitempty`
+	DBUser string `json:"db_user",omitempty`
+}
+
+// ProjectGet struct
+type ProjectGet struct {
+	ID                 int                    `json:"id,omitempty"`
+	UUID               string                 `json:"uuid,omitempty"`
+	AccountHumaneID    string                 `json:"account_humane_id,omitempty"`
+	SVM                string                 `json:"svm,omitempty"`
+	Volume             string                 `json:"volume,omitempty"`
+	DatbaseHost        string                 `json:"database_host",omitempty"`
+	CustomDomains      []string               `json:"custom_domains,omitempty"`
+	ContainerTemplates []interface{}          `json:"container_templates",omitempty`
+	Containers         []interface{}          `json:"containers",omitempty`
+	BaseSpec           map[string]interface{} `json:"base_spec",omitempty`
+	ManagedConfig      map[string]interface{} `json:"managed_config,omitempty"`
+	SSL                map[string]interface{} `json:"ssl",omitempty`
+	CreatedAt          time.Time              `json:"created_at,omitempty"`
+	UpdatedAt          time.Time              `json:"updated_at,omitempty"`
+}
+
+// ProjectNew struct on create
+type ProjectNew struct {
 	UserID        string                 `json:"userID,omitempty"`
 	Name          string                 `json:"name,omitempty"`
-	Kind          string                 `json:"kind"`
+	Kind          string                 `json:"kind,omitempty""`
 	Domain        string                 `json:"domain,omitempty"`
 	SubDomain     string                 `json:"sub_domain,omitempty"`
 	CustomDomains []string               `json:"custom_domains,omitempty"`
@@ -34,8 +57,8 @@ type ProjectCreate struct {
 }
 
 // Projects returns project list
-func (c *Client) Projects(opts map[string]interface{}) (*[]Project, error) {
-	log.Printf("[INFO] listing project")
+func (c *Client) Projects() (*[]Project, error) {
+	log.Printf("[INFO] listing project list")
 
 	request, err := c.Request("GET", "/v1/projects", &RequestOptions{})
 	if err != nil {
@@ -55,19 +78,33 @@ func (c *Client) Projects(opts map[string]interface{}) (*[]Project, error) {
 	return &projects, nil
 }
 
-// CreateProject creates project with kind
-func (c *Client) CreateProject(values map[string]interface{}) (*Project, error) {
-	log.Printf("[INFO] creating project")
+// Project returns a project by sub-domain name
+func (c *Client) Project(name string) (*ProjectGet, error) {
+	log.Printf("[INFO] listing a project")
 
-	data := &ProjectCreate{}
-	for k, v := range values {
-		err := SetField(data, k, v)
-		if err != nil {
-			return nil, err
-		}
+	request, err := c.Request("GET", `/v1/projects/`+name, &RequestOptions{})
+	if err != nil {
+		return nil, err
 	}
 
-	body, err := json.Marshal(data)
+	response, err := dispose(c.HTTPClient.Do(request))
+	if err != nil {
+		return nil, err
+	}
+
+	var project ProjectGet
+	if err := decodeJSON(response, &project); err != nil {
+		return nil, err
+	}
+
+	return &project, nil
+}
+
+// CreateProject creates project with kind
+func (c *Client) CreateProject(p *ProjectNew) (*Project, error) {
+	log.Printf("[INFO] creating project")
+
+	body, err := json.Marshal(p)
 	if err != nil {
 		return nil, err
 	}
