@@ -217,7 +217,8 @@ func (c *CLI) createProject() error {
 	if err != nil {
 		return err
 	}
-	fmt.Fprintf(c.outStream, "%#v\n", p)
+
+	fmt.Fprintf(c.outStream, "%s\n", p.Domain)
 	return nil
 }
 
