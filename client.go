@@ -113,6 +113,21 @@ type RequestOptions struct {
 	BodyLength int64
 }
 
+// HTTP returns http.Response with dispose
+func (c *Client) HTTP(verb, spath string, ro *RequestOptions) (*http.Response, error) {
+	req, err := c.Request(verb, spath, ro)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := dispose(c.HTTPClient.Do(req))
+	if err != nil {
+		return nil, err
+	}
+
+	return res
+}
+
 // Request returns http.Request pointer with error
 func (c *Client) Request(verb, spath string, ro *RequestOptions) (*http.Request, error) {
 	log.Printf("[INFO] request: %s %s", verb, spath)
