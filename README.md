@@ -25,10 +25,10 @@ Usage
 As CLI:
 
 ```sh
-$ eval $(lolp login --username <your@example.com> --password <your_password>)
-$ lolp project create --kind rails --database password:********
-long-foo-9999.lolipop.io
-$ lolp project long-foo-9999
+$ eval $(lolp login -u <your@example.com> -p <your_password>)
+$ lolp project create -k rails -s foobar -d password:<your_password>
+foobar.lolipop.io
+$ lolp project foobar
 ID                   11820
 UUID                 "cdd32ae5-c118-4fc9-b9d6-ea5ad18f3737"
 AccountHumaneID      "smart-naha-3123"
