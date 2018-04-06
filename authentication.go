@@ -25,7 +25,7 @@ func (c *Client) Login(u string, p string) (string, error) {
 	}
 
 	var t string
-	if err := decodeJSON(response, &t); err != nil {
+	if err := decodeJSON(res, &t); err != nil {
 		return "", err
 	}
 

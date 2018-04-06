@@ -59,7 +59,7 @@ func (c *Client) Projects() (*[]Project, error) {
 	}
 
 	var ps []Project
-	if err := decodeJSON(response, &ps); err != nil {
+	if err := decodeJSON(res, &ps); err != nil {
 		return nil, err
 	}
 
@@ -84,7 +84,7 @@ func (c *Client) Project(name string) (*ProjectGet, error) {
 // CreateProject creates project with kind
 func (c *Client) CreateProject(p *ProjectNew) (*Project, error) {
 	if len(p.Kind) == 0 {
-		return "", fmt.Errorf("client: missing kind")
+		return nil, fmt.Errorf("client: missing kind")
 	}
 
 	body, err := json.Marshal(p)
@@ -101,7 +101,7 @@ func (c *Client) CreateProject(p *ProjectNew) (*Project, error) {
 	}
 
 	var pp Project
-	if err := decodeJSON(response, &pp); err != nil {
+	if err := decodeJSON(res, &pp); err != nil {
 		return nil, err
 	}
 

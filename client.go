@@ -125,7 +125,7 @@ func (c *Client) HTTP(verb, spath string, ro *RequestOptions) (*http.Response, e
 		return nil, err
 	}
 
-	return res
+	return res, nil
 }
 
 // Request returns http.Request pointer with error
