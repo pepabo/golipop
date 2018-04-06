@@ -12,7 +12,7 @@ TEST_OPTIONS=-timeout 30s -parallel $(NCPU)
 default: test
 
 deps:
-	go get -u github.com/golang/dep/...
+	go get -u github.com/golang/dep/cmd/dep
 	dep ensure
 
 depsdev: deps
