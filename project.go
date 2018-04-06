@@ -53,51 +53,39 @@ type ProjectNew struct {
 
 // Projects returns project list
 func (c *Client) Projects() (*[]Project, error) {
-	log.Printf("[INFO] listing project list")
-
-	request, err := c.Request("GET", "/v1/projects", &RequestOptions{})
+	res, err := c.HTTP("GET", "/v1/projects", &RequestOptions{})
 	if err != nil {
 		return nil, err
 	}
 
-	response, err := dispose(c.HTTPClient.Do(request))
-	if err != nil {
+	var ps []Project
+	if err := decodeJSON(response, &ps); err != nil {
 		return nil, err
 	}
 
-	var projects []Project
-	if err := decodeJSON(response, &projects); err != nil {
-		return nil, err
-	}
-
-	return &projects, nil
+	return &ps, nil
 }
 
 // Project returns a project by sub-domain name
 func (c *Client) Project(name string) (*ProjectGet, error) {
-	log.Printf("[INFO] listing a project")
-
-	request, err := c.Request("GET", `/v1/projects/`+name, &RequestOptions{})
+	res, err := c.HTTP("GET", `/v1/projects/`+name, &RequestOptions{})
 	if err != nil {
 		return nil, err
 	}
 
-	response, err := dispose(c.HTTPClient.Do(request))
-	if err != nil {
+	var p ProjectGet
+	if err := decodeJSON(res, &p); err != nil {
 		return nil, err
 	}
 
-	var project ProjectGet
-	if err := decodeJSON(response, &project); err != nil {
-		return nil, err
-	}
-
-	return &project, nil
+	return &p, nil
 }
 
 // CreateProject creates project with kind
 func (c *Client) CreateProject(p *ProjectNew) (*Project, error) {
-	log.Printf("[INFO] creating project")
+	if len(p.Kind) == 0 {
+		return "", fmt.Errorf("client: missing kind")
+	}
 
 	body, err := json.Marshal(p)
 	if err != nil {
@@ -105,34 +93,24 @@ func (c *Client) CreateProject(p *ProjectNew) (*Project, error) {
 	}
 	log.Printf("[DEBUG] request body: %s", body)
 
-	request, err := c.Request("POST", "/v1/projects", &RequestOptions{
+	res, err := c.HTTP("POST", "/v1/projects", &RequestOptions{
 		Body: bytes.NewReader(body),
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	response, err := dispose(c.HTTPClient.Do(request))
-	if err != nil {
+	var pp Project
+	if err := decodeJSON(response, &pp); err != nil {
 		return nil, err
 	}
 
-	var project Project
-	if err := decodeJSON(response, &project); err != nil {
-		return nil, err
-	}
-
-	return &project, nil
+	return &pp, nil
 }
 
 // DeleteProject deletes project by project sub-domain name
 func (c *Client) DeleteProject(name string) error {
-	request, err := c.Request("DELETE", `/v1/projects/`+name, &RequestOptions{})
-	if err != nil {
-		return err
-	}
-
-	_, err = dispose(c.HTTPClient.Do(request))
+	_, err := c.HTTP("DELETE", `/v1/projects/`+name, &RequestOptions{})
 	if err != nil {
 		return err
 	}

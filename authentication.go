@@ -7,40 +7,32 @@ import (
 )
 
 // Login for authorization
-func (c *Client) Login(username, password string) (string, error) {
-	log.Printf("[INFO] logging in user %s", username)
-
-	if len(username) == 0 {
+func (c *Client) Login(u string, p string) (string, error) {
+	if len(u) == 0 {
 		return "", fmt.Errorf("client: missing username")
 	}
 
-	if len(password) == 0 {
+	if len(p) == 0 {
 		return "", fmt.Errorf("client: missing password")
 	}
 
-	jsonStr := fmt.Sprintf(`{"username":"%s","password":"%s"}`, username, password)
-	request, err := c.Request("POST", "/v1/authorizations", &RequestOptions{
-		Body: strings.NewReader(jsonStr),
+	json := fmt.Sprintf(`{"username":"%s","password":"%s"}`, u, p)
+	res, err := c.HTTP("POST", "/v1/authorizations", &RequestOptions{
+		Body: strings.NewReader(json),
 	})
-
 	if err != nil {
 		return "", err
 	}
 
-	response, err := dispose(c.HTTPClient.Do(request))
-	if err != nil {
+	var t string
+	if err := decodeJSON(response, &t); err != nil {
 		return "", err
 	}
 
-	var token string
-	if err := decodeJSON(response, &token); err != nil {
-		return "", nil
-	}
+	log.Printf("[DEBUG] setting token (%s)", mask(t))
+	c.Token = t
 
-	log.Printf("[DEBUG] setting token (%s)", mask(token))
-	c.Token = token
-
-	return c.Token, nil
+	return t, nil
 }
 
 // mask for string
