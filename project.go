@@ -3,13 +3,14 @@ package lolp
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 	"time"
 )
 
 // Project struct
 type Project struct {
-	ID            int                    `json:"id,omitempty"`
+	ID            string                 `json:"id,omitempty"`
 	UserID        string                 `json:"userID,omitempty"`
 	Name          string                 `json:"name,omitempty"`
 	Kind          string                 `json:"kind,omitempty"`
@@ -41,10 +42,8 @@ type ProjectGet struct {
 
 // ProjectNew struct on create
 type ProjectNew struct {
-	UserID        string                 `json:"userID,omitempty"`
 	Name          string                 `json:"name,omitempty"`
 	Kind          string                 `json:"kind,omitempty""`
-	Domain        string                 `json:"domain,omitempty"`
 	SubDomain     string                 `json:"sub_domain,omitempty"`
 	CustomDomains []string               `json:"custom_domains,omitempty"`
 	Payload       map[string]interface{} `json:"payload,omitempty"`
