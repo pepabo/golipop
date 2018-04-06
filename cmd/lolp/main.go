@@ -163,7 +163,7 @@ Options:
 
 // callAPI calls API for cli
 func (c *CLI) callAPI() error {
-	c.client = lolp.DefaultClient()
+	c.client = lolp.New()
 	var err error
 
 	switch c.Command {

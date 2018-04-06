@@ -45,8 +45,8 @@ type Client struct {
 	Token         string
 }
 
-// DefaultClient returns client struct pointer
-func DefaultClient() *Client {
+// New returns client struct pointer
+func New() *Client {
 	endpoint := os.Getenv(EndpointEnvVar)
 	if endpoint == "" {
 		endpoint = defaultEndpoint
