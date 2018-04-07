@@ -73,12 +73,12 @@ func TestClientRequest(t *testing.T) {
 
 	c, err := NewClient("https://api.example.com/")
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Fatal(err)
 	}
 	c.Token = "secret"
 	req, err := c.Request("GET", "/test", nil)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Fatal(err)
 	}
 	if req.Method != "GET" {
 		t.Errorf("HTTP method is wrong: %s", req.Method)
