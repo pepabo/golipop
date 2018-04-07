@@ -1,6 +1,9 @@
 package lolp
 
 import (
+	"bytes"
+	"log"
+	"net/http"
 	"os"
 	"strings"
 	"testing"
@@ -30,9 +33,61 @@ func TestNew(t *testing.T) {
 		t.Errorf("User-Agent header expects %s, but got %s", uae, ua)
 	}
 
-	os.Setenv("GOLIPOP_ENDPOINT", "https://example.com/")
+	dummyEndpoint := "https://example.com/"
+	os.Setenv("GOLIPOP_ENDPOINT", dummyEndpoint)
 	cc := New()
-	if cc.URL.String() != "https://example.com/" {
+	if cc.URL.String() != dummyEndpoint {
 		t.Errorf("client URL is wrong: %s", cc.URL)
+	}
+}
+
+func TestNewClient(t *testing.T) {
+	_, err := NewClient("")
+	if err == nil {
+		t.Errorf("empty string as argument expects error")
+	}
+
+	dummyEndpoint := "https://example.com/"
+	c, err := NewClient(dummyEndpoint)
+	if c.URL.String() != dummyEndpoint {
+		t.Errorf("client URL is wrong: %s", c.URL)
+	}
+}
+
+func TestClientInit(t *testing.T) {
+	os.Setenv("GOLIPOP_TLS_NOVERIFY", "true")
+	defer os.Unsetenv("GOLIPOP_TLS_NOVERIFY")
+
+	c := &Client{
+		DefaultHeader: make(http.Header),
+	}
+	c.init()
+	if !c.HTTPClient.Transport.(*http.Transport).TLSClientConfig.InsecureSkipVerify {
+		t.Errorf("skip verify expects true")
+	}
+}
+
+func TestClientRequest(t *testing.T) {
+	o := new(bytes.Buffer)
+	log.SetOutput(o)
+
+	c, err := NewClient("https://api.example.com/")
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	c.Token = "secret"
+	req, err := c.Request("GET", "/test", nil)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	if req.Method != "GET" {
+		t.Errorf("HTTP method is wrong: %s", req.Method)
+	}
+	if req.URL.String() != "https://api.example.com/test" {
+		t.Errorf("HTTP URL is wrong: %s", req.URL)
+	}
+	a := strings.Join(req.Header["Authorization"], "")
+	if a != "Bearer secret" {
+		t.Errorf("Authorization header is wrong: %s", a)
 	}
 }
