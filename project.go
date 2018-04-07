@@ -52,7 +52,7 @@ type ProjectNew struct {
 
 // Projects returns project list
 func (c *Client) Projects() (*[]Project, error) {
-	res, err := c.HTTP("GET", "/v1/projects", &RequestOptions{})
+	res, err := c.HTTP("GET", "/v1/projects", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -67,7 +67,7 @@ func (c *Client) Projects() (*[]Project, error) {
 
 // Project returns a project by sub-domain name
 func (c *Client) Project(name string) (*ProjectGet, error) {
-	res, err := c.HTTP("GET", `/v1/projects/`+name, &RequestOptions{})
+	res, err := c.HTTP("GET", `/v1/projects/`+name, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +109,7 @@ func (c *Client) CreateProject(p *ProjectNew) (*Project, error) {
 
 // DeleteProject deletes project by project sub-domain name
 func (c *Client) DeleteProject(name string) error {
-	_, err := c.HTTP("DELETE", `/v1/projects/`+name, &RequestOptions{})
+	_, err := c.HTTP("DELETE", `/v1/projects/`+name, nil)
 	if err != nil {
 		return err
 	}
