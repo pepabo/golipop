@@ -92,7 +92,6 @@ func NewClient(u string) (*Client, error) {
 func (c *Client) init() error {
 	c.DefaultHeader.Set("User-Agent", userAgent)
 	c.DefaultHeader.Set("Content-Type", "application/json")
-	c.HTTPClient = cleanhttp.DefaultClient()
 
 	tlsConfig := &tls.Config{}
 	if os.Getenv(TLSNoVerifyEnvVar) != "" {
@@ -100,7 +99,7 @@ func (c *Client) init() error {
 	}
 	t := cleanhttp.DefaultTransport()
 	t.TLSClientConfig = tlsConfig
-	c.HTTPClient.Transport = t
+	c.HTTPClient = &http.Client{Transport: t}
 
 	return nil
 }
