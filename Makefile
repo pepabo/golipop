@@ -47,4 +47,4 @@ ghr:
 dist: build
 	@test -z $(GITHUB_TOKEN) || $(MAKE) ghr
 
-.PHONY: default dist test test deps
+.PHONY: default dist test deps
