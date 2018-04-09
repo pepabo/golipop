@@ -42,7 +42,7 @@ build: clean
 	goxz -n $(NAME) -pv $(VERSION) -d ./builds -os=linux,darwin -arch=amd64 ./cmd/lolp
 
 ghr:
-	ghr -u pepabo v$(VERSION) pkg
+	ghr -u pepabo v$(VERSION) builds
 
 dist: build
 	@test -z $(GITHUB_TOKEN) || $(MAKE) ghr
