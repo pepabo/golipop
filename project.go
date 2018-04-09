@@ -10,16 +10,15 @@ import (
 
 // Project struct
 type Project struct {
-	ID            string    `json:"id,omitempty"`
-	UserID        string    `json:"userID,omitempty"`
-	Name          string    `json:"name,omitempty"`
-	Kind          string    `json:"kind,omitempty"`
-	Domain        string    `json:"domain,omitempty"`
-	SubDomain     string    `json:"subDomain,omitempty"`
-	CustomDomains []string  `json:"customDomains,omitempty"`
-	DatabaseHost  string    `json:"databaseHost,omitempty"`
-	CreatedAt     time.Time `json:"createdAt,omitempty"`
-	UpdatedAt     time.Time `json:"updatedAt,omitempty"`
+	ID            string            `json:"id,omitempty"`
+	Name          string            `json:"name,omitempty"`
+	Kind          string            `json:"kind,omitempty"`
+	Domain        string            `json:"domain,omitempty"`
+	SubDomain     string            `json:"subDomain,omitempty"`
+	CustomDomains []string          `json:"customDomains,omitempty"`
+	Database      map[string]string `json:"database,omitempty"`
+	CreatedAt     time.Time         `json:"createdAt,omitempty"`
+	UpdatedAt     time.Time         `json:"updatedAt,omitempty"`
 }
 
 // ProjectNew struct on create

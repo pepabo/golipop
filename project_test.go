@@ -101,14 +101,13 @@ func TestProjects(t *testing.T) {
 	}
 
 	tt, _ := time.Parse(time.RFC3339, "2018-02-13T08:36:06.380Z")
-	userID := "9de66556-6a03-487e-a43b-cedd0696371c"
 	cases := []struct {
 		ret []Project
 	}{
 		{[]Project{
-			Project{ID: "58b22c80-5c64-41ed-ac51-7ca0c695e592", Kind: "rails", Name: "rails-1.lolipop.io", UserID: userID, CreatedAt: tt, UpdatedAt: tt},
-			Project{ID: "507dbd34-d6af-49d5-9d3d-98933c02a019", Kind: "php", Name: "php-1.lolipop.io", UserID: userID, CreatedAt: tt, UpdatedAt: tt},
-			Project{ID: "b3585f32-2265-418e-a762-45894620e1e0", Kind: "wordpress", Name: "wordpress-1.lolipop.io", UserID: userID, CreatedAt: tt, UpdatedAt: tt},
+			Project{ID: "58b22c80-5c64-41ed-ac51-7ca0c695e592", Kind: "rails", Name: "rails-1.lolipop.io", CreatedAt: tt, UpdatedAt: tt},
+			Project{ID: "507dbd34-d6af-49d5-9d3d-98933c02a019", Kind: "php", Name: "php-1.lolipop.io", CreatedAt: tt, UpdatedAt: tt},
+			Project{ID: "b3585f32-2265-418e-a762-45894620e1e0", Kind: "wordpress", Name: "wordpress-1.lolipop.io", CreatedAt: tt, UpdatedAt: tt},
 		}},
 	}
 
@@ -160,12 +159,16 @@ func TestProject(t *testing.T) {
 		{
 			"rails-1",
 			Project{
-				ID:            "58b22c80-5c64-41ed-ac51-7ca0c695e592",
-				Kind:          "rails",
-				Name:          "rails-1.lolipop.io",
-				Domain:        "rails-1.lolipop.io",
-				UserID:        "9de66556-6a03-487e-a43b-cedd0696371c",
-				DatabaseHost:  "mysql-1.mc.lolipop.lan",
+				ID:        "58b22c80-5c64-41ed-ac51-7ca0c695e592",
+				Kind:      "rails",
+				Name:      "rails-1.lolipop.io",
+				Domain:    "rails-1.lolipop.io",
+				SubDomain: "rails-1",
+				Database: map[string]string{
+					"host": "mysql-1.mc.lolipop.lan",
+					"name": "7e7aef038f314742c064deb6e6e84714",
+					"user": "7e7aef038f314742c064deb6e6e84714",
+				},
 				CustomDomains: []string{},
 				CreatedAt:     tt,
 				UpdatedAt:     tt,
