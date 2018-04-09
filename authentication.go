@@ -16,7 +16,7 @@ func (c *Client) Authenticate(u string, p string) (string, error) {
 	}
 
 	json := fmt.Sprintf(`{"username":"%s","password":"%s"}`, u, p)
-	res, err := c.HTTP("POST", "/v1/authorizations", &RequestOptions{
+	res, err := c.HTTP("POST", "/v1/authenticate", &RequestOptions{
 		Body: strings.NewReader(json),
 	})
 	if err != nil {
