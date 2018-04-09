@@ -31,12 +31,3 @@ func (c *Client) Authenticate(u string, p string) (string, error) {
 
 	return t, nil
 }
-
-// mask for string
-func mask(s string) string {
-	if len(s) <= 3 {
-		return "***[masked]"
-	}
-
-	return s[0:3] + "***[masked]"
-}
