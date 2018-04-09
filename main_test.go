@@ -2,6 +2,7 @@ package lolp
 
 import (
 	"bytes"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -12,9 +13,16 @@ import (
 	"testing"
 )
 
+var (
+	debug = flag.Bool("debug", false, "show log for debug")
+)
+
 func TestMain(m *testing.M) {
-	o := new(bytes.Buffer)
-	log.SetOutput(o)
+	flag.Parse()
+	if !*debug {
+		o := new(bytes.Buffer)
+		log.SetOutput(o)
+	}
 	code := m.Run()
 	os.Exit(code)
 }

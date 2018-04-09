@@ -1,5 +1,5 @@
 [
   {"id":"58b22c80-5c64-41ed-ac51-7ca0c695e592","backendProjectID":"41c922d3-68d0-4505-a0e1-e0d0354aec8f","userID":"9de66556-6a03-487e-a43b-cedd0696371c","status":0,"name":"rails-1.lolipop.io","kind":"rails","paymentID":null,"createdAt":"2018-02-13T08:36:06.380Z","updatedAt":"2018-02-13T08:36:06.380Z"},
-  {"id":"507dbd34-d6af-49d5-9d3d-98933c02a019","backendProjectID":"ae331ad3-f9ce-458d-aaac-15b6a524c18b","userID":"9de66556-6a03-487e-a43b-cedd0696371c","status":0,"name":"php-1.lolipop.io","kind":"php","paymentID":null,"createdAt":"2018-02-15T09:58:16.345Z","updatedAt":"2018-02-15T09:58:16.345Z"},
-  {"id":"b3585f32-2265-418e-a762-45894620e1e0","backendProjectID":"f8510cf8-7dbf-4b47-b160-bd321b590911","userID":"9de66556-6a03-487e-a43b-cedd0696371c","status":0,"name":"wordpress-1.lolipop.io","kind":"wordpress","paymentID":null,"createdAt":"2018-02-15T09:58:16.478Z","updatedAt":"2018-02-15T09:58:16.478Z"},
+  {"id":"507dbd34-d6af-49d5-9d3d-98933c02a019","backendProjectID":"ae331ad3-f9ce-458d-aaac-15b6a524c18b","userID":"9de66556-6a03-487e-a43b-cedd0696371c","status":0,"name":"php-1.lolipop.io","kind":"php","paymentID":null,"createdAt":"2018-02-13T08:36:06.380Z","updatedAt":"2018-02-13T08:36:06.380Z"},
+  {"id":"b3585f32-2265-418e-a762-45894620e1e0","backendProjectID":"f8510cf8-7dbf-4b47-b160-bd321b590911","userID":"9de66556-6a03-487e-a43b-cedd0696371c","status":0,"name":"wordpress-1.lolipop.io","kind":"wordpress","paymentID":null,"createdAt":"2018-02-13T08:36:06.380Z","updatedAt":"2018-02-13T08:36:06.380Z"}
 ]

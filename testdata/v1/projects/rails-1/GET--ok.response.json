@@ -1,0 +1,11 @@
+{
+  "id":"58b22c80-5c64-41ed-ac51-7ca0c695e592",
+	"userID":"9de66556-6a03-487e-a43b-cedd0696371c",
+	"name":"rails-1.lolipop.io",
+	"kind":"rails",
+	"domain":"rails-1.lolipop.io",
+	"customDomains":[],
+	"databaseHost":"mysql-1.mc.lolipop.lan",
+  "createdAt":"2018-02-13T08:36:06.380Z",
+  "updatedAt":"2018-02-13T08:36:06.380Z"
+}
