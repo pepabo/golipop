@@ -17,24 +17,28 @@ import (
 
 func main() {
 	cli := &CLI{outStream: os.Stdout, errStream: os.Stderr}
-	os.Exit(cli.run())
+	os.Exit(cli.run(os.Args[1:]))
 }
 
 // CLI struct
 type CLI struct {
 	outStream, errStream io.Writer
 	client               *lolp.Client
-	Args                 []string
-	Command              string
-	SubCommand           string
-	OptLogLevel          string            `long:"loglevel" short:"l" arg:"(debug|info|warn|error)" description:"specify log-level"`
-	OptHelp              bool              `long:"help" short:"h" description:"show this help message and exit"`
-	OptVersion           bool              `long:"version" short:"v" description:"prints the version number"`
-	Kind                 string            `long:"kind" arg:"(wordpress|php|rails|node)" description:"kind for project"`
-	Payload              map[string]string `long:"payload" description:"payload for project"`
-	Database             map[string]string `long:"database" arg:"password" description:"database for project"`
-	Username             string            `long:"username" description:""`
-	Password             string            `long:"password" description:""`
+
+	Args          []string
+	Command       string
+	SubCommand    string
+	Kind          string            `long:"kind" short:"k" arg:"(wordpress|php|rails|node)" description:"kind of project"`
+	SubDomain     string            `long:"sub-domain" short:"s" description:"your sub-domain"`
+	CustomDomains []string          `long:"custom-domain" short:"c" description:"your custom domain"`
+	Payload       map[string]string `long:"payload" short:"a" description:"payload for project"`
+	Database      map[string]string `long:"database" short:"d" description:"database for project"`
+	Username      string            `long:"username" short:"u" description:"username for login"`
+	Password      string            `long:"password" short:"p" description:"password for login"`
+
+	OptLogLevel string `long:"loglevel" short:"l" arg:"(debug|info|warn|error)" description:"specify log-level"`
+	OptHelp     bool   `long:"help" short:"h" description:"show this help message and exit"`
+	OptVersion  bool   `long:"version" short:"v" description:"prints the version number"`
 }
 
 const (
@@ -46,16 +50,16 @@ const (
 )
 
 // CLI executes for cli
-func (c *CLI) run() int {
+func (c *CLI) run(a []string) int {
 	p := flags.NewParser(c, flags.PrintErrors|flags.PassDoubleDash)
-	args, err := p.Parse()
+	args, err := p.ParseArgs(a)
 	if err != nil || c.OptHelp {
 		c.showHelp()
 		return ExitErr
 	}
 
 	if c.OptVersion {
-		fmt.Fprintf(c.errStream, "%s\n", lolp.Version)
+		fmt.Fprintf(c.errStream, "%s version %s\n", lolp.Name, lolp.Version)
 		return ExitOK
 	}
 
@@ -95,25 +99,44 @@ func (c *CLI) run() int {
 
 // help shows help
 func (c *CLI) showHelp() {
-	fmt.Fprintf(c.outStream, `
-Usage: lolp [<option>] <command> [<args|attributes>]
+	attrs := strings.Join(c.buildHelp([]string{
+		"Username",
+		"Password",
+		"Payload",
+		"Database",
+		"CustomDomains",
+		"SubDomain",
+	}), "\n")
 
-Commands:
-  login --username <id> --password <pw>
-  project create --kind <php|rails|node> --database pw:<pw>
-  project create --kind wordpress --payload username:<wp-user> --payload password:<wp-pw> --payload email:<wp-email>
-  project list
-  project delete <name>
-
-Options:
-`)
-
-	t := reflect.TypeOf(CLI{})
-	names := []string{
+	opts := strings.Join(c.buildHelp([]string{
 		"OptLogLevel",
 		"OptHelp",
 		"OptVersion",
-	}
+	}), "\n")
+
+	help := `
+Usage: lolp [<option>] <command> [<args|attributes>]
+
+Commands: login, project
+
+Attributes:
+%s
+Options:
+%s
+
+Examples:
+  login -u <your-email> -p <your-password>
+  project create -k <php|rails|node> -d password:<password>
+  project create -k wordpress -a username:<wp-user> -a password:<wp-pw> -a email:<wp-email>
+  project list
+  project delete <project-sub-domain>
+`
+	fmt.Fprintf(c.outStream, help, attrs, opts)
+}
+
+func (c *CLI) buildHelp(names []string) []string {
+	var help []string
+	t := reflect.TypeOf(CLI{})
 
 	for _, name := range names {
 		f, ok := t.FieldByName(name)
@@ -157,13 +180,15 @@ Options:
 			}
 			desc = buf.String()
 		}
-		fmt.Fprintf(c.outStream, "  %-40s %s\n", o, desc)
+		help = append(help, fmt.Sprintf("  %-40s %s", o, desc))
 	}
+
+	return help
 }
 
 // callAPI calls API for cli
 func (c *CLI) callAPI() error {
-	c.client = lolp.DefaultClient()
+	c.client = lolp.New()
 	var err error
 
 	switch c.Command {
@@ -193,7 +218,7 @@ func (c *CLI) callAPI() error {
 
 // login logins to lolipop
 func (c *CLI) login() error {
-	token, err := c.client.Login(c.Username, c.Password)
+	token, err := c.client.Authenticate(c.Username, c.Password)
 	if err != nil {
 		return err
 	}
@@ -205,6 +230,12 @@ func (c *CLI) login() error {
 func (c *CLI) createProject() error {
 	n := new(lolp.ProjectNew)
 	n.Kind = c.Kind
+	if len(c.SubDomain) > 0 {
+		n.SubDomain = c.SubDomain
+	}
+	if len(c.CustomDomains) > 0 {
+		n.CustomDomains = c.CustomDomains
+	}
 	if len(c.Payload) > 0 {
 		payload := make(map[string]interface{})
 		for k, v := range c.Payload {

@@ -12,14 +12,15 @@ TEST_OPTIONS=-timeout 30s -parallel $(NCPU)
 default: test
 
 deps:
-	go get -u github.com/golang/dep/...
+	go get -u github.com/golang/dep/cmd/dep
 	dep ensure
 
 depsdev: deps
 	go get github.com/golang/lint/golint
 	go get github.com/pierrre/gotestcover
-	go get -u github.com/mitchellh/gox
+	go get -u github.com/Songmu/goxz/cmd/goxz
 	go get -u github.com/tcnksm/ghr
+	go get -u github.com/Songmu/ghch/cmd/ghch
 
 test:
 	go test $(TEST) $(TESTARGS) $(TEST_OPTIONS)
@@ -33,7 +34,17 @@ lint:
 
 ci: depsdev test
 
-dist:
-	ghr v$(VERSION) pkg
+clean:
+	rm -rf ./builds
+	mkdir ./builds
 
-.PHONY: default dist test test deps
+build: clean
+	goxz -n $(NAME) -pv $(VERSION) -d ./builds -os=linux,darwin -arch=amd64 ./cmd/lolp
+
+ghr:
+	ghr -u pepabo v$(VERSION) pkg
+
+dist: build
+	@test -z $(GITHUB_TOKEN) || $(MAKE) ghr
+
+.PHONY: default dist test deps

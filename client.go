@@ -22,13 +22,13 @@ const (
 	defaultEndpoint = "https://api.mc.lolipop.jp/"
 
 	// EndpointEnvVar for endpoint
-	EndpointEnvVar = "GOLIPOP_ENDPOINT"
+	EndpointEnvVar = "LOLP_ENDPOINT"
 
 	// TLSNoVerifyEnvVar for TLS verify skip flag
-	TLSNoVerifyEnvVar = "GOLIPOP_TLS_NOVERIFY"
+	TLSNoVerifyEnvVar = "LOLP_TLS_NOVERIFY"
 
 	// TokenEnvVar for authentication
-	TokenEnvVar = "GOLIPOP_TOKEN"
+	TokenEnvVar = "LOLP_TOKEN"
 )
 
 // projectURL for this
@@ -45,8 +45,8 @@ type Client struct {
 	Token         string
 }
 
-// DefaultClient returns client struct pointer
-func DefaultClient() *Client {
+// New returns client struct pointer
+func New() *Client {
 	endpoint := os.Getenv(EndpointEnvVar)
 	if endpoint == "" {
 		endpoint = defaultEndpoint
@@ -92,7 +92,6 @@ func NewClient(u string) (*Client, error) {
 func (c *Client) init() error {
 	c.DefaultHeader.Set("User-Agent", userAgent)
 	c.DefaultHeader.Set("Content-Type", "application/json")
-	c.HTTPClient = cleanhttp.DefaultClient()
 
 	tlsConfig := &tls.Config{}
 	if os.Getenv(TLSNoVerifyEnvVar) != "" {
@@ -100,7 +99,7 @@ func (c *Client) init() error {
 	}
 	t := cleanhttp.DefaultTransport()
 	t.TLSClientConfig = tlsConfig
-	c.HTTPClient.Transport = t
+	c.HTTPClient = &http.Client{Transport: t}
 
 	return nil
 }
@@ -111,6 +110,21 @@ type RequestOptions struct {
 	Headers    map[string]string
 	Body       io.Reader
 	BodyLength int64
+}
+
+// HTTP returns http.Response with dispose
+func (c *Client) HTTP(verb, spath string, ro *RequestOptions) (*http.Response, error) {
+	req, err := c.Request(verb, spath, ro)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := dispose(c.HTTPClient.Do(req))
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }
 
 // Request returns http.Request pointer with error
