@@ -59,7 +59,7 @@ func (c *CLI) run(a []string) int {
 	}
 
 	if c.OptVersion {
-		fmt.Fprintf(c.errStream, "%s\n", lolp.Version)
+		fmt.Fprintf(c.errStream, "%s version %s\n", lolp.Name, lolp.Version)
 		return ExitOK
 	}
 
