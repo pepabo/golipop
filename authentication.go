@@ -2,12 +2,11 @@ package lolp
 
 import (
 	"fmt"
-	"log"
 	"strings"
 )
 
-// Login for authorization
-func (c *Client) Login(u string, p string) (string, error) {
+// Authenticate for authorization
+func (c *Client) Authenticate(u string, p string) (string, error) {
 	if len(u) == 0 {
 		return "", fmt.Errorf("client: missing username")
 	}

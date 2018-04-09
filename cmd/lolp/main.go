@@ -218,7 +218,7 @@ func (c *CLI) callAPI() error {
 
 // login logins to lolipop
 func (c *CLI) login() error {
-	token, err := c.client.Login(c.Username, c.Password)
+	token, err := c.client.Authenticate(c.Username, c.Password)
 	if err != nil {
 		return err
 	}
