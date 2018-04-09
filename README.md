@@ -29,12 +29,9 @@ $ eval $(lolp login -u <your@example.com> -p <your_password>)
 $ lolp project create -k rails -s foobar -d password:<your_password>
 foobar.lolipop.io
 $ lolp project foobar
-ID                   11820
-UUID                 "cdd32ae5-c118-4fc9-b9d6-ea5ad18f3737"
-AccountHumaneID      "smart-naha-3123"
-SVM                  "cl1_nfs01"
-Volume               "volume5"
-DatbaseHost          "mysql-1.mc.lolipop.lan"
+ID                 "cdd32ae5-c118-4fc9-b9d6-ea5ad18f3737"
+Kind               "rails"
+Domain             "foobar.lolipop.io"
 ...
 ```
 
