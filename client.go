@@ -22,13 +22,13 @@ const (
 	defaultEndpoint = "https://api.mc.lolipop.jp/"
 
 	// EndpointEnvVar for endpoint
-	EndpointEnvVar = "GOLIPOP_ENDPOINT"
+	EndpointEnvVar = "LOLP_ENDPOINT"
 
 	// TLSNoVerifyEnvVar for TLS verify skip flag
-	TLSNoVerifyEnvVar = "GOLIPOP_TLS_NOVERIFY"
+	TLSNoVerifyEnvVar = "LOLP_TLS_NOVERIFY"
 
 	// TokenEnvVar for authentication
-	TokenEnvVar = "GOLIPOP_TOKEN"
+	TokenEnvVar = "LOLP_TOKEN"
 )
 
 // projectURL for this

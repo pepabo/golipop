@@ -10,10 +10,10 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	now := os.Getenv("GOLIPOP_TOKEN")
-	os.Unsetenv("GOLIPOP_TOKEN")
-	defer os.Setenv("GOLIPOP_TOKEN", now)
-	defer os.Unsetenv("GOLIPOP_ENDPOINT")
+	now := os.Getenv("LOLP_TOKEN")
+	os.Unsetenv("LOLP_TOKEN")
+	defer os.Setenv("LOLP_TOKEN", now)
+	defer os.Unsetenv("LOLP_ENDPOINT")
 
 	c := New()
 	if c.URL.String() != "https://api.mc.lolipop.jp/" {
@@ -34,7 +34,7 @@ func TestNew(t *testing.T) {
 	}
 
 	dummyEndpoint := "https://example.com/"
-	os.Setenv("GOLIPOP_ENDPOINT", dummyEndpoint)
+	os.Setenv("LOLP_ENDPOINT", dummyEndpoint)
 	cc := New()
 	if cc.URL.String() != dummyEndpoint {
 		t.Errorf("client URL is wrong: %s", cc.URL)
@@ -55,8 +55,8 @@ func TestNewClient(t *testing.T) {
 }
 
 func TestClientInit(t *testing.T) {
-	os.Setenv("GOLIPOP_TLS_NOVERIFY", "true")
-	defer os.Unsetenv("GOLIPOP_TLS_NOVERIFY")
+	os.Setenv("LOLP_TLS_NOVERIFY", "true")
+	defer os.Unsetenv("LOLP_TLS_NOVERIFY")
 
 	c := &Client{
 		DefaultHeader: make(http.Header),
