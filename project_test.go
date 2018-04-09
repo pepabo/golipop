@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"path"
 	"reflect"
 	"testing"
 	"time"
@@ -183,5 +184,68 @@ func TestProject(t *testing.T) {
 	}
 }
 
+func projectDeleteHandler(t *testing.T) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			panic(err.Error())
+		}
+
+		var ctx string
+		name := path.Base(r.RequestURI)
+		if name == "rails-1" {
+			ctx = "ok"
+		} else {
+			ctx = "ng"
+		}
+
+		expected := ""
+		actual := string(body)
+		if expected != actual {
+			t.Errorf("request body\nexpected: %s\nactual: %s", expected, actual)
+		}
+
+		if ctx == "ok" {
+			w.WriteHeader(http.StatusNoContent)
+			w.Header().Set("Content-Type", "application/json")
+			io.WriteString(w, fixture(ctx+".response", r))
+		}
+
+		if ctx == "ng" {
+			w.WriteHeader(http.StatusNotFound)
+			w.Header().Set("Content-Type", "application/json")
+			io.WriteString(w, fixture(ctx+".response", r))
+		}
+	}
+}
+
 func TestDeleteProject(t *testing.T) {
+	s := httptest.NewServer(http.HandlerFunc(projectDeleteHandler(t)))
+	defer s.Close()
+
+	c, err := NewClient(s.URL)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cases := []struct {
+		name        string
+		expectedErr bool
+	}{
+		{"rails-1", false},
+		{"not-exist", true},
+	}
+
+	for _, cc := range cases {
+		err := c.DeleteProject(cc.name)
+		if cc.expectedErr {
+			if err == nil {
+				t.Errorf("expect project delete failure but succeeded")
+			}
+		} else {
+			if err != nil {
+				t.Errorf("expect to succeed in project delete, but failed: %s", err)
+			}
+		}
+	}
 }
