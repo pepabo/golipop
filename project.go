@@ -10,34 +10,16 @@ import (
 
 // Project struct
 type Project struct {
-	ID            string                 `json:"id,omitempty"`
-	UserID        string                 `json:"userID,omitempty"`
-	Name          string                 `json:"name,omitempty"`
-	Kind          string                 `json:"kind,omitempty"`
-	Domain        string                 `json:"domain,omitempty"`
-	SubDomain     string                 `json:"sub_domain,omitempty"`
-	CustomDomains []string               `json:"custom_domains,omitempty"`
-	Database      map[string]interface{} `json:"database,omitempty"`
-	CreatedAt     time.Time              `json:"createdAt,omitempty"`
-	UpdatedAt     time.Time              `json:"updatedAt,omitempty"`
-}
-
-// ProjectGet struct
-type ProjectGet struct {
-	ID                 int                    `json:"id,omitempty"`
-	UUID               string                 `json:"uuid,omitempty"`
-	AccountHumaneID    string                 `json:"account_humane_id,omitempty"`
-	SVM                string                 `json:"svm,omitempty"`
-	Volume             string                 `json:"volume,omitempty"`
-	DatbaseHost        string                 `json:"database_host",omitempty"`
-	CustomDomains      []string               `json:"custom_domains,omitempty"`
-	ContainerTemplates []interface{}          `json:"container_templates",omitempty`
-	Containers         []interface{}          `json:"containers",omitempty`
-	BaseSpec           map[string]interface{} `json:"base_spec",omitempty`
-	ManagedConfig      map[string]interface{} `json:"managed_config,omitempty"`
-	SSL                map[string]interface{} `json:"ssl",omitempty`
-	CreatedAt          time.Time              `json:"created_at,omitempty"`
-	UpdatedAt          time.Time              `json:"updated_at,omitempty"`
+	ID            string    `json:"id,omitempty"`
+	UserID        string    `json:"userID,omitempty"`
+	Name          string    `json:"name,omitempty"`
+	Kind          string    `json:"kind,omitempty"`
+	Domain        string    `json:"domain,omitempty"`
+	SubDomain     string    `json:"subDomain,omitempty"`
+	CustomDomains []string  `json:"customDomains,omitempty"`
+	DatabaseHost  string    `json:"databaseHost,omitempty"`
+	CreatedAt     time.Time `json:"createdAt,omitempty"`
+	UpdatedAt     time.Time `json:"updatedAt,omitempty"`
 }
 
 // ProjectNew struct on create
@@ -66,13 +48,13 @@ func (c *Client) Projects() (*[]Project, error) {
 }
 
 // Project returns a project by sub-domain name
-func (c *Client) Project(name string) (*ProjectGet, error) {
+func (c *Client) Project(name string) (*Project, error) {
 	res, err := c.HTTP("GET", `/v1/projects/`+name, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	var p ProjectGet
+	var p Project
 	if err := decodeJSON(res, &p); err != nil {
 		return nil, err
 	}
