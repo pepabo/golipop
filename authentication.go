@@ -27,8 +27,6 @@ func (c *Client) Authenticate(u string, p string) (string, error) {
 	if err := decodeJSON(res, &t); err != nil {
 		return "", err
 	}
-
-	log.Printf("[DEBUG] setting token (%s)", mask(t))
 	c.Token = t
 
 	return t, nil
