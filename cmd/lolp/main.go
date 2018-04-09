@@ -17,7 +17,7 @@ import (
 
 func main() {
 	cli := &CLI{outStream: os.Stdout, errStream: os.Stderr}
-	os.Exit(cli.run())
+	os.Exit(cli.run(os.Args[1:]))
 }
 
 // CLI struct
@@ -50,9 +50,9 @@ const (
 )
 
 // CLI executes for cli
-func (c *CLI) run() int {
+func (c *CLI) run(a []string) int {
 	p := flags.NewParser(c, flags.PrintErrors|flags.PassDoubleDash)
-	args, err := p.Parse()
+	args, err := p.ParseArgs(a)
 	if err != nil || c.OptHelp {
 		c.showHelp()
 		return ExitErr
