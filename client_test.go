@@ -10,10 +10,12 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	now := os.Getenv("LOLP_TOKEN")
+	currentToken := os.Getenv("LOLP_TOKEN")
+	currentEndpoint := os.Getenv("LOLP_ENDPOINT")
 	os.Unsetenv("LOLP_TOKEN")
-	defer os.Setenv("LOLP_TOKEN", now)
-	defer os.Unsetenv("LOLP_ENDPOINT")
+	os.Unsetenv("LOLP_ENDPOINT")
+	defer os.Setenv("LOLP_TOKEN", currentToken)
+	defer os.Setenv("LOLP_ENDPOINT", currentEndpoint)
 
 	c := New()
 	if c.URL.String() != "https://api.mc.lolipop.jp/" {
