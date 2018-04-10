@@ -164,10 +164,15 @@ func TestProject(t *testing.T) {
 				Name:      "rails-1.lolipop.io",
 				Domain:    "rails-1.lolipop.io",
 				SubDomain: "rails-1",
-				Database: map[string]string{
-					"host": "mysql-1.mc.lolipop.lan",
-					"name": "7e7aef038f314742c064deb6e6e84714",
-					"user": "7e7aef038f314742c064deb6e6e84714",
+				Database: Database{
+					Host: "mysql-1.mc.lolipop.lan",
+					Name: "7e7aef038f314742c064deb6e6e84714",
+					User: "7e7aef038f314742c064deb6e6e84714",
+				},
+				SSH: SSH{
+					User: "sweet-ebino-9052",
+					Host: "ssh-1.mc.lolipop.jp",
+					Port: 12345,
 				},
 				CustomDomains: []string{},
 				CreatedAt:     tt,

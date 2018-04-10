@@ -9,6 +9,7 @@ import (
 	"os"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/hashicorp/logutils"
 	flags "github.com/jessevdk/go-flags"
@@ -292,8 +293,16 @@ func (c *CLI) deleteProject() error {
 func (c *CLI) showStruct(s interface{}) {
 	ss := reflect.ValueOf(s).Elem()
 	typeOfT := ss.Type()
+	// RFC3339
+	layout := "2006-01-02T15:04:05Z07:00"
 	for i := 0; i < ss.NumField(); i++ {
 		f := ss.Field(i)
-		fmt.Fprintf(c.outStream, "%-20s %#v\n", typeOfT.Field(i).Name, f.Interface())
+		v := f.Interface()
+		isTime := reflect.TypeOf(v) == reflect.TypeOf(time.Now())
+		if isTime {
+			fmt.Fprintf(c.outStream, "%-20s %s\n", typeOfT.Field(i).Name, v.(time.Time).Format(layout))
+		} else {
+			fmt.Fprintf(c.outStream, "%-20s %#v\n", typeOfT.Field(i).Name, v)
+		}
 	}
 }

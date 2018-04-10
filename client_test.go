@@ -10,10 +10,12 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	now := os.Getenv("LOLP_TOKEN")
+	currentToken := os.Getenv("LOLP_TOKEN")
+	currentEndpoint := os.Getenv("LOLP_ENDPOINT")
 	os.Unsetenv("LOLP_TOKEN")
-	defer os.Setenv("LOLP_TOKEN", now)
-	defer os.Unsetenv("LOLP_ENDPOINT")
+	os.Unsetenv("LOLP_ENDPOINT")
+	defer os.Setenv("LOLP_TOKEN", currentToken)
+	defer os.Setenv("LOLP_ENDPOINT", currentEndpoint)
 
 	c := New()
 	if c.URL.String() != "https://api.mc.lolipop.jp/" {
@@ -28,7 +30,7 @@ func TestNew(t *testing.T) {
 		t.Errorf("Content-Type header expects %s, but got %s", cte, ct)
 	}
 	ua := strings.Join(c.DefaultHeader["User-Agent"], "")
-	uae := "lolp/0.0.1 (+https://github.com/pepabo/golipop; go"
+	uae := "lolp/" + Version + " (+https://github.com/pepabo/golipop; go"
 	if !strings.HasPrefix(ua, uae) {
 		t.Errorf("User-Agent header expects %s, but got %s", uae, ua)
 	}
