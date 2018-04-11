@@ -55,7 +55,7 @@ func TestCreateProject(t *testing.T) {
 			Project{Domain: "foobar-baz-9999.lolipop.io"},
 		},
 		{
-			ProjectNew{Kind: "rails", Database: map[string]interface{}{"password": "Secret#Gopher123?"}},
+			ProjectNew{Kind: "rails", DBPassword: "Secret#Gopher123?"},
 			Project{Domain: "foobar-baz-9999.lolipop.io"},
 		},
 	}
