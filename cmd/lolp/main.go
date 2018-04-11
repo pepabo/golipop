@@ -33,7 +33,7 @@ type CLI struct {
 	SubDomain     string            `long:"sub-domain" short:"s" description:"your sub-domain"`
 	CustomDomains []string          `long:"custom-domain" short:"c" description:"your custom domain"`
 	Payload       map[string]string `long:"payload" short:"a" description:"payload for project"`
-	Database      map[string]string `long:"database" short:"d" description:"database for project"`
+	DBPassword    string            `long:"db-password" short:"d" description:"database for project"`
 	Username      string            `long:"username" short:"u" description:"username for login"`
 	Password      string            `long:"password" short:"p" description:"password for login"`
 
@@ -104,7 +104,7 @@ func (c *CLI) showHelp() {
 		"Username",
 		"Password",
 		"Payload",
-		"Database",
+		"DBPassword",
 		"CustomDomains",
 		"SubDomain",
 	}), "\n")
@@ -244,8 +244,8 @@ func (c *CLI) createProject() error {
 		}
 		n.Payload = payload
 	}
-	if len(c.Database) > 0 {
-		n.Database = map[string]interface{}{"password": c.Database["password"]}
+	if len(c.DBPassword) > 0 {
+		n.DBPassword = c.DBPassword
 	}
 	p, err := c.client.CreateProject(n)
 	if err != nil {

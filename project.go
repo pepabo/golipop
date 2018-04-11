@@ -41,7 +41,7 @@ type ProjectNew struct {
 	SubDomain     string                 `json:"sub_domain,omitempty"`
 	CustomDomains []string               `json:"custom_domains,omitempty"`
 	Payload       map[string]interface{} `json:"payload,omitempty"`
-	Database      map[string]interface{} `json:"database,omitempty"`
+	DBPassword    string                 `json:"db_password,omitempty"`
 }
 
 // Projects returns project list
