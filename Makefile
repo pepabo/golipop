@@ -16,7 +16,7 @@ deps:
 	dep ensure
 
 depsdev: deps
-	go get github.com/golang/lint/golint
+	go get -u golang.org/x/lint/golint
 	go get github.com/pierrre/gotestcover
 	go get -u github.com/Songmu/goxz/cmd/goxz
 	go get -u github.com/tcnksm/ghr
