@@ -44,7 +44,7 @@ type ProjectNew struct {
 	DBPassword    string                 `json:"db_password,omitempty"`
 }
 
-type CreateProjectResponse struct {
+type ProjectCreateResponse struct {
 	ID     string `json:"id"`
 	Domain string `json:"domain"`
 }
@@ -80,7 +80,7 @@ func (c *Client) Project(name string) (*Project, error) {
 }
 
 // CreateProject creates project with kind
-func (c *Client) CreateProject(p *ProjectNew) (*CreateProjectResponse, error) {
+func (c *Client) CreateProject(p *ProjectNew) (*ProjectCreateResponse, error) {
 	if len(p.Kind) == 0 {
 		return nil, fmt.Errorf("client: missing kind")
 	}
@@ -98,7 +98,7 @@ func (c *Client) CreateProject(p *ProjectNew) (*CreateProjectResponse, error) {
 		return nil, err
 	}
 
-	var r CreateProjectResponse
+	var r ProjectCreateResponse
 	if err := decodeJSON(res, &r); err != nil {
 		return nil, err
 	}
