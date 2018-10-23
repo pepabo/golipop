@@ -17,7 +17,7 @@ type Project struct {
 	SubDomain     string    `json:"subDomain,omitempty"`
 	CustomDomains []string  `json:"customDomains,omitempty"`
 	Database      Database  `json:"database,omitempty"`
-	SSH           SSH       `json:"ssh,omitempty"`
+	SSH           *SSH      `json:"ssh,omitempty"`
 	CreatedAt     time.Time `json:"createdAt,omitempty"`
 	UpdatedAt     time.Time `json:"updatedAt,omitempty"`
 }
@@ -42,6 +42,11 @@ type ProjectNew struct {
 	CustomDomains []string               `json:"custom_domains,omitempty"`
 	Payload       map[string]interface{} `json:"payload,omitempty"`
 	DBPassword    string                 `json:"db_password,omitempty"`
+}
+
+type ProjectCreateResponse struct {
+	ID     string `json:"id"`
+	Domain string `json:"domain"`
 }
 
 // Projects returns project list
@@ -75,7 +80,7 @@ func (c *Client) Project(name string) (*Project, error) {
 }
 
 // CreateProject creates project with kind
-func (c *Client) CreateProject(p *ProjectNew) (*Project, error) {
+func (c *Client) CreateProject(p *ProjectNew) (*ProjectCreateResponse, error) {
 	if len(p.Kind) == 0 {
 		return nil, fmt.Errorf("client: missing kind")
 	}
@@ -93,12 +98,12 @@ func (c *Client) CreateProject(p *ProjectNew) (*Project, error) {
 		return nil, err
 	}
 
-	var pp Project
-	if err := decodeJSON(res, &pp); err != nil {
+	var r ProjectCreateResponse
+	if err := decodeJSON(res, &r); err != nil {
 		return nil, err
 	}
 
-	return &pp, nil
+	return &r, nil
 }
 
 // DeleteProject deletes project by project sub-domain name
