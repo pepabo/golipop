@@ -48,15 +48,15 @@ func TestCreateProject(t *testing.T) {
 
 	cases := []struct {
 		arg        ProjectNew
-		wantReturn Project
+		wantReturn CreateProjectResponse
 	}{
 		{
 			ProjectNew{Kind: "wordpress", Payload: map[string]interface{}{"username": "foo", "email": "foo@example.com", "password": "Secret#Gopher123?"}},
-			Project{Domain: "foobar-baz-9999.lolipop.io"},
+			CreateProjectResponse{Domain: "foobar-baz-9999.lolipop.io"},
 		},
 		{
 			ProjectNew{Kind: "rails", DBPassword: "Secret#Gopher123?"},
-			Project{Domain: "foobar-baz-9999.lolipop.io"},
+			CreateProjectResponse{Domain: "foobar-baz-9999.lolipop.io"},
 		},
 	}
 
@@ -169,7 +169,7 @@ func TestProject(t *testing.T) {
 					Name: "7e7aef038f314742c064deb6e6e84714",
 					User: "7e7aef038f314742c064deb6e6e84714",
 				},
-				SSH: SSH{
+				SSH: &SSH{
 					User: "sweet-ebino-9052",
 					Host: "ssh-1.mc.lolipop.jp",
 					Port: 12345,
