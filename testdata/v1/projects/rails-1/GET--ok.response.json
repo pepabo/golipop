@@ -4,7 +4,11 @@
   "kind":"rails",
   "domain":"rails-1.lolipop.io",
   "subDomain":"rails-1",
-  "customDomains":[],
+  "customDomains":[
+    {
+      "name": "rails-1.example.com"
+    }
+  ],
   "database":{
     "host":"mysql-1.mc.lolipop.lan",
     "user":"7e7aef038f314742c064deb6e6e84714",

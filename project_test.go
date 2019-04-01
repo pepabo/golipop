@@ -174,9 +174,13 @@ func TestProject(t *testing.T) {
 					Host: "ssh-1.mc.lolipop.jp",
 					Port: 12345,
 				},
-				CustomDomains: []string{},
-				CreatedAt:     tt,
-				UpdatedAt:     tt,
+				CustomDomains: []CustomDomain{
+					CustomDomain{
+						Name: "rails-1.example.com",
+					},
+				},
+				CreatedAt: tt,
+				UpdatedAt: tt,
 			},
 		},
 	}
