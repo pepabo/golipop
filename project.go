@@ -10,16 +10,20 @@ import (
 
 // Project struct
 type Project struct {
-	ID            string    `json:"id,omitempty"`
-	Name          string    `json:"name,omitempty"`
-	Kind          string    `json:"kind,omitempty"`
-	Domain        string    `json:"domain,omitempty"`
-	SubDomain     string    `json:"subDomain,omitempty"`
-	CustomDomains []string  `json:"customDomains,omitempty"`
-	Database      Database  `json:"database,omitempty"`
-	SSH           *SSH      `json:"ssh,omitempty"`
-	CreatedAt     time.Time `json:"createdAt,omitempty"`
-	UpdatedAt     time.Time `json:"updatedAt,omitempty"`
+	ID            string         `json:"id,omitempty"`
+	Name          string         `json:"name,omitempty"`
+	Kind          string         `json:"kind,omitempty"`
+	Domain        string         `json:"domain,omitempty"`
+	SubDomain     string         `json:"subDomain,omitempty"`
+	CustomDomains []CustomDomain `json:"customDomains,omitempty"`
+	Database      Database       `json:"database,omitempty"`
+	SSH           *SSH           `json:"ssh,omitempty"`
+	CreatedAt     time.Time      `json:"createdAt,omitempty"`
+	UpdatedAt     time.Time      `json:"updatedAt,omitempty"`
+}
+
+type CustomDomain struct {
+	Name string `json:"name,omitempty"`
 }
 
 type Database struct {
