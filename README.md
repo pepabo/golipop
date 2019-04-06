@@ -38,14 +38,14 @@ Domain             "foobar.lolipop.io"
 As library:
 
 ```go
-client := lolp.DefaultClinet()
-token, err := client.Login("your@example.com", "your_password")
+client := lolp.New()
+token, err := client.Authenticate("your@example.com", "your_password")
 if err != nil {
   panic(err)
 }
-p := &ProjectNew{
+p := &lolp.ProjectNew{
   Kind: "rails",
-  Database: map[string]interface{} {"password": "********"},
+  DBPassword: "********",
 }
 project, err := client.CreateProject(p)
 if err != nil {
