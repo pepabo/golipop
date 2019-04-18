@@ -15,6 +15,7 @@ type Project struct {
 	Kind          string         `json:"kind,omitempty"`
 	Domain        string         `json:"domain,omitempty"`
 	SubDomain     string         `json:"subDomain,omitempty"`
+	Autoscalable  bool           `json:"autoscalable,omitempty"`
 	CustomDomains []CustomDomain `json:"customDomains,omitempty"`
 	Database      Database       `json:"database,omitempty"`
 	SSH           *SSH           `json:"ssh,omitempty"`
@@ -113,6 +114,26 @@ func (c *Client) CreateProject(p *ProjectNew) (*ProjectCreateResponse, error) {
 // DeleteProject deletes project by project sub-domain name
 func (c *Client) DeleteProject(name string) error {
 	_, err := c.HTTP("DELETE", `/v1/projects/`+name, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// EnableAutoscaling enable autoscaling by project sub-domain name
+func (c *Client) EnableAutoscaling(name string) error {
+	_, err := c.HTTP("PUT", `/v1/projects/`+name+`/autoscaling/enable`, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// DisableAutoscaling disable autoscaling by project sub-domain name
+func (c *Client) DisableAutoscaling(name string) error {
+	_, err := c.HTTP("PUT", `/v1/projects/`+name+`/autoscaling/disable`, nil)
 	if err != nil {
 		return err
 	}
