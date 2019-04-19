@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"path"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 )
@@ -159,11 +160,12 @@ func TestProject(t *testing.T) {
 		{
 			"rails-1",
 			Project{
-				ID:        "58b22c80-5c64-41ed-ac51-7ca0c695e592",
-				Kind:      "rails",
-				Name:      "rails-1.lolipop.io",
-				Domain:    "rails-1.lolipop.io",
-				SubDomain: "rails-1",
+				ID:           "58b22c80-5c64-41ed-ac51-7ca0c695e592",
+				Kind:         "rails",
+				Name:         "rails-1.lolipop.io",
+				Domain:       "rails-1.lolipop.io",
+				Autoscalable: false,
+				SubDomain:    "rails-1",
 				Database: Database{
 					Host: "mysql-1.mc.lolipop.lan",
 					Name: "7e7aef038f314742c064deb6e6e84714",
@@ -257,6 +259,136 @@ func TestDeleteProject(t *testing.T) {
 		} else {
 			if err != nil {
 				t.Errorf("expect to succeed in project delete, but failed: %s", err)
+			}
+		}
+	}
+}
+
+func projectEnableAutoscalingHandler(t *testing.T) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			panic(err.Error())
+		}
+
+		var ctx string
+		if strings.Contains(r.RequestURI, "rails-1") {
+			ctx = "ok"
+		} else {
+			ctx = "ng"
+		}
+
+		expected := ""
+		actual := string(body)
+		if expected != actual {
+			t.Errorf("request body\nexpected: %s\nactual: %s", expected, actual)
+		}
+
+		if ctx == "ok" {
+			w.WriteHeader(http.StatusCreated)
+			w.Header().Set("Content-Type", "application/json")
+			io.WriteString(w, fixture(ctx+".response", r))
+		}
+
+		if ctx == "ng" {
+			w.WriteHeader(http.StatusNotFound)
+			w.Header().Set("Content-Type", "application/json")
+			io.WriteString(w, fixture(ctx+".response", r))
+		}
+	}
+}
+
+func TestEnableAutoscaling(t *testing.T) {
+	s := httptest.NewServer(http.HandlerFunc(projectEnableAutoscalingHandler(t)))
+	defer s.Close()
+
+	c, err := NewClient(s.URL)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cases := []struct {
+		name        string
+		expectedErr bool
+	}{
+		{"rails-1", false},
+		{"not-exist", true},
+	}
+
+	for _, cc := range cases {
+		err := c.EnableAutoscaling(cc.name)
+		if cc.expectedErr {
+			if err == nil {
+				t.Errorf("expect enable autoscaling failure but succeeded")
+			}
+		} else {
+			if err != nil {
+				t.Errorf("expect to succeed in enable autoscaling, but failed: %s", err)
+			}
+		}
+	}
+}
+
+func projectDisableAutoscalingHandler(t *testing.T) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			panic(err.Error())
+		}
+
+		var ctx string
+		if strings.Contains(r.RequestURI, "rails-1") {
+			ctx = "ok"
+		} else {
+			ctx = "ng"
+		}
+
+		expected := ""
+		actual := string(body)
+		if expected != actual {
+			t.Errorf("request body\nexpected: %s\nactual: %s", expected, actual)
+		}
+
+		if ctx == "ok" {
+			w.WriteHeader(http.StatusCreated)
+			w.Header().Set("Content-Type", "application/json")
+			io.WriteString(w, fixture(ctx+".response", r))
+		}
+
+		if ctx == "ng" {
+			w.WriteHeader(http.StatusNotFound)
+			w.Header().Set("Content-Type", "application/json")
+			io.WriteString(w, fixture(ctx+".response", r))
+		}
+	}
+}
+
+func TestDisableAutoscaling(t *testing.T) {
+	s := httptest.NewServer(http.HandlerFunc(projectDisableAutoscalingHandler(t)))
+	defer s.Close()
+
+	c, err := NewClient(s.URL)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cases := []struct {
+		name        string
+		expectedErr bool
+	}{
+		{"rails-1", false},
+		{"not-exist", true},
+	}
+
+	for _, cc := range cases {
+		err := c.DisableAutoscaling(cc.name)
+		if cc.expectedErr {
+			if err == nil {
+				t.Errorf("expect disable autoscaling failure but succeeded")
+			}
+		} else {
+			if err != nil {
+				t.Errorf("expect to succeed in disable autoscaling, but failed: %s", err)
 			}
 		}
 	}

@@ -3,25 +3,44 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:77cb3be9b21ba7f1a4701e870c84ea8b66e7d74c7c8951c58155fdadae9414ec"
   name = "github.com/hashicorp/go-cleanhttp"
   packages = ["."]
+  pruneopts = "UT"
   revision = "d5fe4b57a186c716b0e00b8c301cbd9b4182694d"
 
 [[projects]]
   branch = "master"
+  digest = "1:ce3f7860fd68bd2dd4c3735e2aed8c9de7c7d05bd6ad7d97a6bedcf4fe7b84fb"
   name = "github.com/hashicorp/logutils"
   packages = ["."]
+  pruneopts = "UT"
   revision = "0dc08b1671f34c4250ce212759ebd880f743d883"
 
 [[projects]]
+  digest = "1:a2cff208d4759f6ba1b1cd228587b0a1869f95f22542ec9cd17fff64430113c7"
   name = "github.com/jessevdk/go-flags"
   packages = ["."]
+  pruneopts = "UT"
   revision = "c6ca198ec95c841fdb89fc0de7496fed11ab854e"
   version = "v1.4.0"
+
+[[projects]]
+  digest = "1:995660aaf9861ec61240811ca1fe6c1640be253f2bf04a13e3f2b04605572821"
+  name = "github.com/pepabo/golipop"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "7c05315d6f16d245cc69f4b8d908000ef7e64b40"
+  version = "v0.0.4"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "52b82b22ecce0b41b569f0bee90a5aa7ec710a409010e7376985dca08ac305eb"
+  input-imports = [
+    "github.com/hashicorp/go-cleanhttp",
+    "github.com/hashicorp/logutils",
+    "github.com/jessevdk/go-flags",
+    "github.com/pepabo/golipop",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1
