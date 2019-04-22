@@ -4,4 +4,4 @@ package lolp
 const Name string = "lolp"
 
 // Version for this
-const Version string = "0.0.4"
+const Version string = "0.0.5"
