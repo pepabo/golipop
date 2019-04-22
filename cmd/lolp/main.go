@@ -13,7 +13,7 @@ import (
 
 	"github.com/hashicorp/logutils"
 	flags "github.com/jessevdk/go-flags"
-	"github.com/pepabo/golipop"
+	lolp "github.com/pepabo/golipop"
 )
 
 func main() {
@@ -131,6 +131,8 @@ Examples:
   project create -k wordpress -a username:<wp-user> -a password:<wp-pw> -a email:<wp-email>
   project list
   project delete <project-sub-domain>
+  project enable-autoscale <project-sub-domain>
+  project disable-autoscale <project-sub-domain>
 `
 	fmt.Fprintf(c.outStream, help, attrs, opts)
 }
@@ -203,6 +205,10 @@ func (c *CLI) callAPI() error {
 			err = c.projects()
 		case "delete":
 			err = c.deleteProject()
+		case "enable-autoscale":
+			err = c.enableAutoscaling()
+		case "disable-autoscale":
+			err = c.disableAutoscaling()
 		default:
 			err = c.project()
 		}
@@ -286,6 +292,26 @@ func (c *CLI) deleteProject() error {
 		return err
 	}
 	fmt.Fprintf(c.outStream, "delete successfuly\n")
+	return nil
+}
+
+// enableAutoscaling enable autoscale
+func (c *CLI) enableAutoscaling() error {
+	err := c.client.EnableAutoscaling(c.Args[0])
+	if err != nil {
+		return err
+	}
+	fmt.Fprintf(c.outStream, "enable autoscale successfuly\n")
+	return nil
+}
+
+// disableAutoscaling disable autoscale
+func (c *CLI) disableAutoscaling() error {
+	err := c.client.DisableAutoscaling(c.Args[0])
+	if err != nil {
+		return err
+	}
+	fmt.Fprintf(c.outStream, "disable autoscale successfuly\n")
 	return nil
 }
 
