@@ -148,9 +148,9 @@ func (c *Client) GetEnvironmentVariables(name string) (string, error) {
 		return "", err
 	}
 
-	return "", err
 	resbody, err := ioutil.ReadAll(res.Body)
 	if err != nil {
+		return "", err
 	}
 
 	return string(resbody), nil
