@@ -140,3 +140,36 @@ func (c *Client) DisableAutoscaling(name string) error {
 
 	return nil
 }
+
+func (c *Client) GetEnvironmentVariables(name string) error {
+	_, err := c.HTTP("GET", `/v1/projects/`+name+`/environment-variables`, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+type UpdateEnvironmentVariablesParam struct {
+	Method   string `json:"method"`
+	Variable struct {
+		Key   string `json:"key"`
+		Value string `json:"value"`
+	} `json:"variable"`
+}
+
+func (c *Client) UpdateEnvironmentVariables(name string, params []UpdateEnvironmentVariablesParam) error {
+	body, err := json.Marshal(params)
+	if err != nil {
+		return err
+	}
+
+	_, err = c.HTTP("PUT", `/v1/projects/`+name+`/environment-variables`, &RequestOptions{
+		Body: bytes.NewReader(body),
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
