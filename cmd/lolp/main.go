@@ -210,8 +210,8 @@ func (c *CLI) callAPI() error {
 			err = c.enableAutoscaling()
 		case "disable-autoscale":
 			err = c.disableAutoscaling()
-		//case "get-env":
-		//	err = c.enableAutoscaling()
+		case "get-env":
+			err = c.getEnvironmentVariables()
 		case "edit-env":
 			err = c.updateEnvironmentVariables()
 		default:
@@ -317,6 +317,16 @@ func (c *CLI) disableAutoscaling() error {
 		return err
 	}
 	fmt.Fprintf(c.outStream, "disable autoscale successfuly\n")
+	return nil
+}
+
+func (c *CLI) getEnvironmentVariables() error {
+	res, err := c.client.GetEnvironmentVariables(c.Args[0])
+	if err != nil {
+		return err
+	}
+
+	fmt.Fprintf(c.outStream, "%s\n", res)
 	return nil
 }
 
