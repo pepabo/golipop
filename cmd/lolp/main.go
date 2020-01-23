@@ -133,6 +133,7 @@ Examples:
   project delete <project-sub-domain>
   project enable-autoscale <project-sub-domain>
   project disable-autoscale <project-sub-domain>
+  project get-env <project-sub-domain>
   project edit-env <project-sub-domain> <create|update|delete> <key> <value>
 `
 	fmt.Fprintf(c.outStream, help, attrs, opts)
