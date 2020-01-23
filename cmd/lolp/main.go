@@ -133,6 +133,7 @@ Examples:
   project delete <project-sub-domain>
   project enable-autoscale <project-sub-domain>
   project disable-autoscale <project-sub-domain>
+  project edit-env <project-sub-domain> <create|update|delete> <key> <value>
 `
 	fmt.Fprintf(c.outStream, help, attrs, opts)
 }
@@ -209,6 +210,10 @@ func (c *CLI) callAPI() error {
 			err = c.enableAutoscaling()
 		case "disable-autoscale":
 			err = c.disableAutoscaling()
+		//case "get-env":
+		//	err = c.enableAutoscaling()
+		case "edit-env":
+			err = c.updateEnvironmentVariables()
 		default:
 			err = c.project()
 		}
@@ -312,6 +317,32 @@ func (c *CLI) disableAutoscaling() error {
 		return err
 	}
 	fmt.Fprintf(c.outStream, "disable autoscale successfuly\n")
+	return nil
+}
+
+func (c *CLI) updateEnvironmentVariables() error {
+	if len(c.Args) < 4 {
+		return errors.New("want 4 args")
+	}
+
+	param := lolp.UpdateEnvironmentVariablesParam{
+		Method: c.Args[1],
+		Variable: struct {
+			Key   string `json:"key"`
+			Value string `json:"value"`
+		}{
+			Key:   c.Args[2],
+			Value: c.Args[3],
+		},
+	}
+  params := []lolp.UpdateEnvironmentVariablesParam{param}
+
+	err := c.client.UpdateEnvironmentVariables(c.Args[0], params)
+	if err != nil {
+		return err
+	}
+
+	fmt.Fprintf(c.outStream, "update environment-variable successfuly\n")
 	return nil
 }
 
