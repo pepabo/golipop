@@ -22,6 +22,7 @@ depsdev: install_goreleaser
 	go get github.com/pierrre/gotestcover
 	go get -u github.com/Songmu/ghch/cmd/ghch
 
+test: export GO111MODULE=on
 test:
 	go test $(TEST) $(TESTARGS) $(TEST_OPTIONS)
 	go test -race $(TEST) $(TESTARGS)
