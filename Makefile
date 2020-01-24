@@ -4,25 +4,25 @@ VERSION = "$(shell awk -F\" '/^const Version/ { print $$2; exit }' version.go)"
 
 ifeq ("$(shell uname)","Darwin")
 NCPU ?= $(shell sysctl hw.ncpu | cut -f2 -d' ')
+CMD_INSTALL_GORELEASER="brew install goreleaser"
 else
 NCPU ?= $(shell cat /proc/cpuinfo | grep processor | wc -l)
+CMD_INSTALL_GORELEASER="curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh"
 endif
 TEST_OPTIONS=-timeout 30s -parallel $(NCPU)
 
 default: test
 
-deps: export GO111MODULE=off
-deps:
-	go get -u github.com/golang/dep/cmd/dep
-	dep ensure
+install_goreleaser:
+	@which goreleaser || eval $(CMD_INSTALL_GORELEASER)
 
-depsdev: deps
+depsdev: export GO111MODULE=off
+depsdev: install_goreleaser
 	go get -u golang.org/x/lint/golint
 	go get github.com/pierrre/gotestcover
-	go get -u github.com/Songmu/goxz/cmd/goxz
-	go get -u github.com/tcnksm/ghr
 	go get -u github.com/Songmu/ghch/cmd/ghch
 
+test: export GO111MODULE=on
 test:
 	go test $(TEST) $(TESTARGS) $(TEST_OPTIONS)
 	go test -race $(TEST) $(TESTARGS)
@@ -33,19 +33,12 @@ integration:
 lint:
 	golint -set_exit_status $(TEST)
 
-ci: deps test
+ci: test
 
-clean:
-	rm -rf ./builds
-	mkdir ./builds
+build: install_goreleaser
+	goreleaser --skip-publish --snapshot --rm-dist
 
-build: clean
-	goxz -n $(NAME) -pv $(VERSION) -d ./builds -os=linux,darwin -arch=amd64 ./cmd/lolp
+dist: install_goreleaser
+	goreleaser --rm-dist
 
-ghr:
-	ghr -u pepabo v$(VERSION) builds
-
-dist: build
-	@test -z $(GITHUB_TOKEN) || $(MAKE) ghr
-
-.PHONY: default dist test deps
+.PHONY: default dist test
