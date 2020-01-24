@@ -11,6 +11,7 @@ TEST_OPTIONS=-timeout 30s -parallel $(NCPU)
 
 default: test
 
+deps: export GO111MODULE=off
 deps:
 	go get -u github.com/golang/dep/cmd/dep
 	dep ensure
