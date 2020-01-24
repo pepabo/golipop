@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"time"
 )
@@ -134,6 +135,44 @@ func (c *Client) EnableAutoscaling(name string) error {
 // DisableAutoscaling disable autoscaling by project sub-domain name
 func (c *Client) DisableAutoscaling(name string) error {
 	_, err := c.HTTP("PUT", `/v1/projects/`+name+`/autoscaling/disable`, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *Client) GetEnvironmentVariables(name string) (string, error) {
+	res, err := c.HTTP("GET", `/v1/projects/`+name+`/environment-variables`, nil)
+	if err != nil {
+		return "", err
+	}
+
+	resbody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return "", err
+	}
+
+	return string(resbody), nil
+}
+
+type UpdateEnvironmentVariablesParam struct {
+	Method   string `json:"method"`
+	Variable struct {
+		Key   string `json:"key"`
+		Value string `json:"value"`
+	} `json:"variable"`
+}
+
+func (c *Client) UpdateEnvironmentVariables(name string, params []UpdateEnvironmentVariablesParam) error {
+	body, err := json.Marshal(params)
+	if err != nil {
+		return err
+	}
+
+	_, err = c.HTTP("PUT", `/v1/projects/`+name+`/environment-variables`, &RequestOptions{
+		Body: bytes.NewReader(body),
+	})
 	if err != nil {
 		return err
 	}
