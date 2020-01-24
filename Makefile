@@ -4,23 +4,25 @@ VERSION = "$(shell awk -F\" '/^const Version/ { print $$2; exit }' version.go)"
 
 ifeq ("$(shell uname)","Darwin")
 NCPU ?= $(shell sysctl hw.ncpu | cut -f2 -d' ')
+CMD_INSTALL_GORELEASER="brew install goreleaser"
 else
 NCPU ?= $(shell cat /proc/cpuinfo | grep processor | wc -l)
+CMD_INSTALL_GORELEASER="curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh"
 endif
 TEST_OPTIONS=-timeout 30s -parallel $(NCPU)
 
 default: test
 
-deps: export GO111MODULE=off
 deps:
 	go get -u github.com/golang/dep/cmd/dep
 	dep ensure
 
-depsdev: deps
+install_goreleaser:
+	eval $(CMD_INSTALL_GORELEASER)
+
+depsdev: deps install_goreleaser
 	go get -u golang.org/x/lint/golint
 	go get github.com/pierrre/gotestcover
-	go get -u github.com/Songmu/goxz/cmd/goxz
-	go get -u github.com/tcnksm/ghr
 	go get -u github.com/Songmu/ghch/cmd/ghch
 
 test:
