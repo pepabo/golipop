@@ -33,7 +33,7 @@ integration:
 lint:
 	golint -set_exit_status $(TEST)
 
-ci: depsdev test
+ci: deps test
 
 clean:
 	rm -rf ./builds
