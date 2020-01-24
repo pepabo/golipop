@@ -13,14 +13,11 @@ TEST_OPTIONS=-timeout 30s -parallel $(NCPU)
 
 default: test
 
-deps:
-	go get -u github.com/golang/dep/cmd/dep
-	dep ensure
-
 install_goreleaser:
-	eval $(CMD_INSTALL_GORELEASER)
+	@which goreleaser || eval $(CMD_INSTALL_GORELEASER)
 
-depsdev: deps install_goreleaser
+depsdev: export GO111MODULE=off
+depsdev: install_goreleaser
 	go get -u golang.org/x/lint/golint
 	go get github.com/pierrre/gotestcover
 	go get -u github.com/Songmu/ghch/cmd/ghch
@@ -35,19 +32,12 @@ integration:
 lint:
 	golint -set_exit_status $(TEST)
 
-ci: deps test
+ci: test
 
-clean:
-	rm -rf ./builds
-	mkdir ./builds
+build: install_goreleaser
+	goreleaser --skip-publish --snapshot --rm-dist
 
-build: clean
-	goxz -n $(NAME) -pv $(VERSION) -d ./builds -os=linux,darwin -arch=amd64 ./cmd/lolp
+dist: install_goreleaser
+	goreleaser --rm-dist
 
-ghr:
-	ghr -u pepabo v$(VERSION) builds
-
-dist: build
-	@test -z $(GITHUB_TOKEN) || $(MAKE) ghr
-
-.PHONY: default dist test deps
+.PHONY: default dist test

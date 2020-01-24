@@ -16,3 +16,4 @@ vendor/*
 
 # artifacts
 /builds
+dist/
